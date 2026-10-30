@@ -1,0 +1,6 @@
+# Поверх конфигурации detekt по умолчанию (buildUponDefaultConfig = true).
+style:
+  MagicNumber:
+    ignoreNamedArgument: true
+    ignorePropertyDeclaration: true
+    ignoreExtensionFunctions: true

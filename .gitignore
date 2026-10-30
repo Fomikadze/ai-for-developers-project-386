@@ -1,0 +1,49 @@
+# Зависимости и сборка
+node_modules/
+build/
+dist/
+out/
+*.class
+*.jar
+!backend/gradle/wrapper/gradle-wrapper.jar
+
+# Gradle и Kotlin
+.gradle/
+.kotlin/
+
+# Генерируемый SDK фронтенда (см. docs/api.md)
+frontend/src/api/generated/
+
+# Отчёты о тестах и покрытии
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# Кэши инструментов
+.rumdl_cache/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+.vite/
+.hk-cache/
+
+# Секреты и локальные настройки
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.claude/settings.local.json
+
+# IDE и ОС
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Логи
+*.log
+npm-debug.log*
+pnpm-debug.log*
