@@ -1,0 +1,7 @@
+[global]
+# Текст не переносим вручную: длинные строки допустимы.
+disable = ["MD013"]
+
+[MD033]
+# <details> используется в README для блока Хекслета.
+allowed-elements = ["details", "summary"]

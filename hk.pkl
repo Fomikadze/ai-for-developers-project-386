@@ -1,0 +1,78 @@
+amends "package://github.com/jdx/hk/releases/download/v2.10.0/hk@2.10.0#/Config.pkl"
+
+// Хуки вызывают те же задачи mise, что и CI. Шаг с glob запускается,
+// только если в изменениях есть подходящие файлы.
+
+local linters = new Mapping<String, Step> {
+  ["lint-backend"] {
+    glob = List("backend/**")
+    check = "mise run lint:backend"
+  }
+  ["lint-frontend"] {
+    glob = List("frontend/**")
+    check = "mise run lint:frontend"
+  }
+  ["lint-contract"] {
+    glob = List("typespec/**")
+    check = "mise run lint:contract"
+  }
+  ["lint-workflows"] {
+    glob = List(".github/workflows/*.yml")
+    check = "mise run lint:workflows"
+  }
+  ["lint-schemas"] {
+    glob = List(".github/workflows/*.yml", "renovate.json")
+    check = "mise run lint:schemas"
+  }
+  ["lint-docker"] {
+    glob = List("**/Dockerfile*")
+    check = "mise run lint:docker"
+  }
+  ["lint-markdown"] {
+    glob = List("**/*.md")
+    check = "mise run lint:markdown"
+  }
+  ["lint-typos"] {
+    check = "mise run lint:typos"
+  }
+  ["secrets"] {
+    check = "mise run security:secrets:staged"
+  }
+}
+
+local prePush = new Mapping<String, Step> {
+  ["test-backend"] {
+    glob = List("backend/**")
+    check = "mise run test:backend"
+  }
+  ["test-frontend"] {
+    glob = List("frontend/**")
+    check = "mise run test:frontend"
+  }
+  ["api-breaking"] {
+    glob = List("typespec/**")
+    check = "mise run api:breaking"
+  }
+  ["deps"] {
+    check = "mise run security:deps"
+  }
+}
+
+hooks {
+  ["pre-commit"] {
+    steps = linters
+  }
+  ["commit-msg"] {
+    steps {
+      ["commitlint"] {
+        check = "commitlint --edit {{commit_msg_file}}"
+      }
+    }
+  }
+  ["pre-push"] {
+    steps = prePush
+  }
+  ["check"] {
+    steps = linters
+  }
+}

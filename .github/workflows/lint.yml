@@ -1,0 +1,104 @@
+name: lint
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check backend exists
+        id: present
+        run: echo "found=$([ -f backend/gradlew ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - uses: jdx/mise-action@v5
+        if: steps.present.outputs.found == 'true'
+        with:
+          install_args: java
+
+      - uses: gradle/actions/setup-gradle@v6
+        if: steps.present.outputs.found == 'true'
+
+      - name: ktlint and detekt
+        if: steps.present.outputs.found == 'true'
+        run: mise run lint:backend
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check frontend exists
+        id: present
+        run: echo "found=$([ -f frontend/package.json ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - uses: jdx/mise-action@v5
+        if: steps.present.outputs.found == 'true'
+        with:
+          install_args: node pnpm
+
+      - name: Install dependencies
+        if: steps.present.outputs.found == 'true'
+        run: pnpm --dir frontend install --frozen-lockfile
+
+      - name: ESLint, Prettier, tsc
+        if: steps.present.outputs.found == 'true'
+        run: mise run lint:frontend
+
+  typespec:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check typespec exists
+        id: present
+        run: echo "found=$([ -f typespec/package.json ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - uses: jdx/mise-action@v5
+        if: steps.present.outputs.found == 'true'
+        with:
+          install_args: node pnpm
+
+      - name: Install dependencies
+        if: steps.present.outputs.found == 'true'
+        run: pnpm --dir typespec install --frozen-lockfile
+
+      - name: tsp format check
+        if: steps.present.outputs.found == 'true'
+        run: mise run lint:contract
+
+  repo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: jdx/mise-action@v5
+        with:
+          install_args: >-
+            node uv actionlint github:oasdiff/oasdiff betterleaks osv-scanner
+            hadolint lychee typos rumdl pipx:check-jsonschema npm:@commitlint/cli
+
+      - name: Workflows, schemas, Dockerfile, Markdown, typos
+        run: mise run lint:repo
+
+      - name: Links
+        run: mise run lint:links
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Secrets and vulnerable dependencies
+        run: mise run security
+
+      - name: Breaking API changes
+        run: mise run api:breaking
+
+      - name: Commit messages
+        if: github.event_name == 'pull_request'
+        run: commitlint --from "origin/${{ github.base_ref }}" --to HEAD

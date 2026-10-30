@@ -1,0 +1,170 @@
+[settings]
+experimental = true
+
+[tools]
+java = "temurin-21"
+node = "22"
+pnpm = "12"
+hk = "2.10.0"
+pitchfork = "2.32.4"
+# Проверки качества (см. docs/tooling.md)
+uv = "0.13.6"                       # нужен для pipx-инструментов
+actionlint = "1.7.12"
+"github:oasdiff/oasdiff" = "1.35.0"
+betterleaks = "1.9.0"
+osv-scanner = "2.7.0"
+hadolint = "2.15.1"
+lychee = "0.24.2"
+typos = "1.51.1"
+rumdl = "0.3.2"
+"pipx:diff-cover" = "11.0.0"
+"pipx:check-jsonschema" = "0.39.0"
+"npm:@commitlint/cli" = "21.2.4"
+
+[daemons.backend]
+task = "backend:run"
+ready_port = 8080
+
+[daemons.frontend]
+task = "frontend:dev"
+ready_port = 5173
+depends = ["backend"]
+
+[daemon_groups]
+default = ["backend", "frontend"]
+
+[tasks."hooks:install"]
+description = "Установить git-хуки hk (запуск через mise)"
+run = "hk install --mise"
+
+[tasks.install]
+description = "Установить зависимости фронтенда и контракта"
+run = [
+  "pnpm --dir typespec install",
+  "pnpm --dir frontend install",
+]
+
+[tasks.contract]
+description = "Скомпилировать TypeSpec в openapi.yaml"
+run = "pnpm --dir typespec exec tsp compile ."
+
+[tasks.sdk]
+description = "Сгенерировать клиентский SDK из openapi.yaml"
+depends = ["contract"]
+run = "pnpm --dir frontend generate"
+
+[tasks."lint:backend"]
+description = "ktlint и detekt"
+dir = "backend"
+run = "[ -f gradlew ] || { echo \"пропущено: нет backend/gradlew\"; exit 0; }; ./gradlew ktlintCheck detekt"
+
+[tasks."lint:frontend"]
+description = "ESLint, Prettier и проверка типов"
+dir = "frontend"
+run = "[ -f package.json ] || { echo \"пропущено: нет frontend/package.json\"; exit 0; }; pnpm lint && pnpm format:check && pnpm typecheck"
+
+[tasks."lint:contract"]
+description = "Проверка форматирования TypeSpec"
+dir = "typespec"
+run = "[ -f package.json ] || { echo \"пропущено: нет typespec/package.json\"; exit 0; }; pnpm exec tsp format --check '**/*.tsp'"
+
+[tasks.lint]
+description = "Все линтеры"
+depends = ["lint:backend", "lint:frontend", "lint:contract"]
+
+[tasks."test:backend"]
+description = "Тесты бэкенда"
+dir = "backend"
+run = "[ -f gradlew ] || { echo \"пропущено: нет backend/gradlew\"; exit 0; }; ./gradlew test"
+
+[tasks."test:frontend"]
+description = "Тесты фронтенда"
+dir = "frontend"
+run = "[ -f package.json ] || { echo \"пропущено: нет frontend/package.json\"; exit 0; }; pnpm test"
+
+[tasks.test]
+description = "Все тесты"
+depends = ["test:backend", "test:frontend"]
+
+[tasks."backend:run"]
+description = "Запустить бэкенд"
+dir = "backend"
+run = "./gradlew run"
+
+[tasks."frontend:dev"]
+description = "Запустить фронтенд в режиме разработки"
+dir = "frontend"
+run = "pnpm dev"
+
+[tasks.smoke]
+description = "Smoke-тест: бэкенд поднимается и отвечает на /api/health"
+run = "scripts/smoke.sh"
+
+[tasks.e2e]
+description = "Playwright e2e тесты"
+dir = "frontend"
+run = "pnpm exec playwright test"
+
+[tasks."lint:workflows"]
+description = "actionlint: GitHub Actions workflow"
+run = "actionlint"
+
+[tasks."lint:schemas"]
+description = "check-jsonschema: workflow и renovate.json по схемам"
+run = [
+  "check-jsonschema --builtin-schema vendor.github-workflows .github/workflows/*.yml",
+  "check-jsonschema --builtin-schema vendor.renovate renovate.json",
+]
+
+[tasks."lint:docker"]
+description = "hadolint: все Dockerfile в репозитории"
+run = "git ls-files -z -- '*Dockerfile*' | xargs -0 -r hadolint"
+
+[tasks."lint:markdown"]
+description = "rumdl: Markdown"
+run = "rumdl check ."
+
+[tasks."lint:typos"]
+description = "typos: опечатки в коде и документации"
+run = "typos"
+
+[tasks."lint:links"]
+description = "lychee: битые ссылки в Markdown (нужна сеть)"
+run = "lychee --no-progress --include-fragments --root-dir \"$PWD\" './**/*.md'"
+
+[tasks."lint:commits"]
+description = "commitlint: сообщения коммитов ветки относительно origin/main"
+run = "commitlint --from origin/main --to HEAD"
+
+[tasks."lint:repo"]
+description = "Проверки репозитория вне backend/frontend/typespec"
+depends = ["lint:workflows", "lint:schemas", "lint:docker", "lint:markdown", "lint:typos"]
+
+[tasks."security:secrets"]
+description = "betterleaks: секреты в истории git"
+run = "betterleaks git . --no-banner"
+
+[tasks."security:secrets:staged"]
+description = "betterleaks: секреты в проиндексированных изменениях (для pre-commit)"
+run = "betterleaks git . --staged --no-banner"
+
+[tasks."security:deps"]
+description = "OSV-Scanner: уязвимости в зависимостях по lock-файлам"
+run = "osv-scanner scan source -r --allow-no-lockfiles ."
+
+[tasks.security]
+description = "Все проверки безопасности"
+depends = ["security:secrets", "security:deps"]
+
+[tasks."api:breaking"]
+description = "oasdiff: ломающие изменения openapi.yaml относительно origin/main"
+run = "scripts/api-breaking.sh"
+
+[tasks."coverage:diff"]
+description = "diff-cover: покрытие изменённых строк относительно origin/main (порог 80%)"
+run = "scripts/coverage-diff.sh"
+
+[tasks.check]
+description = "Все локальные проверки: линтеры, тесты, безопасность, API, покрытие изменённых строк"
+depends = ["lint", "lint:repo", "test", "security", "api:breaking"]
+run = [{ task = "coverage:diff" }]
