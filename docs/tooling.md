@@ -5,7 +5,8 @@
 Версии инструментов (JDK, Node, pnpm, hk, pitchfork и инструменты проверок) и задачи проекта лежат в `mise.toml`. Это единственное место, где задаются версии: CI ставит их через `jdx/mise-action` и запускает те же задачи, что и локально.
 
 - `mise install` ставит инструменты, `mise tasks` показывает задачи.
-- `mise run check` — все локальные проверки одной командой: `lint`, `lint:repo`, `test`, `security`, `api:breaking`, затем `coverage:diff`. Не входят: `lint:links` (нужна сеть), `e2e` и `smoke` (поднимают серверы).
+- `mise run check` — полная проверка, ровно то, что выполняет CI: `lint`, `lint:repo`, `lint:links`, `lint:commits`, `test`, `security`, `api:breaking`, затем `coverage:diff` и `smoke`. Нужны сеть и свободный порт 8080. Не входит `e2e`: он появится в `check` вместе с фронтендом.
+- `mise run local-check` — быстрая версия для работы без сети и серверов: `lint`, `lint:repo`, `test`, `security`, `api:breaking`, затем `coverage:diff`.
 - Задачи `lint:*` и `test:*` для `backend`, `frontend` и `typespec` пропускаются с сообщением, пока нет `gradlew` или `package.json`.
 - Основные задачи: `mise run lint`, `mise run test`, `mise run sdk`, `mise run backend:run`, `mise run frontend:dev`, `mise run e2e`, `mise run smoke`.
 
@@ -68,9 +69,8 @@ hk ставится через mise, конфигурация — `hk.pkl` в к
 ## CI
 
 - `hexlet-check.yml` — автоматические тесты Хекслета, не трогаем и не меняем.
-- `.github/workflows/lint.yml` — линтеры бэкенда, фронтенда и контракта; job `repo` запускает `lint:repo`, `lint:links`, `security`, `api:breaking` и commitlint для PR.
-- `.github/workflows/smoke.yml` — smoke-тест.
-- Шаги workflow пропускаются, пока нет `backend/gradlew`, `frontend/package.json` или `typespec/package.json`.
+- `.github/workflows/check.yml` — один job: `mise run install`, затем `mise run check`. Запускается на push в любую ветку и на pull request, полная история git нужна для `lint:commits`, `api:breaking`, `coverage:diff` и поиска секретов.
+- Задачи `lint:*`, `test:*` и `mise run install` пропускают `backend`, `frontend` и `typespec`, пока нет `gradlew` или `package.json`.
 - В `frontend/` и `typespec/` должен быть закоммичен `pnpm-lock.yaml`. Скрипты во `frontend/package.json`: `lint`, `format:check`, `typecheck`, `generate`, `test`, `dev`.
 
 ## Docker
@@ -79,4 +79,4 @@ Dockerfile и docker-compose ещё не созданы. Описание зап
 
 ## Smoke-тест
 
-`scripts/smoke.sh` запускает бэкенд (`./gradlew run` в `backend/`, порт 8080) и ждёт ответ `200` от `GET /api/health` (до 120 с). В CI это workflow `smoke.yml`, локально `mise run smoke`. Переменные: `APP_CMD`, `APP_DIR`, `SMOKE_URL`, `TIMEOUT`. Gradle запускается на JDK из `mise.toml` (Temurin 21), поэтому вызывайте его через `mise run` или `mise x -- ./gradlew`.
+`scripts/smoke.sh` запускает бэкенд (`./gradlew run` в `backend/`, порт 8080) и ждёт ответ `200` от `GET /api/health` (до 120 с). Входит в `mise run check`, отдельно запускается как `mise run smoke`. Переменные: `APP_CMD`, `APP_DIR`, `SMOKE_URL`, `TIMEOUT`. Gradle запускается на JDK из `mise.toml` (Temurin 21), поэтому вызывайте его через `mise run` или `mise x -- ./gradlew`.

@@ -19,7 +19,8 @@ mise install && mise run install   # инструменты и зависимо�
 mise run hooks:install             # git-хуки hk
 mise tasks                         # список всех задач
 
-mise run check                     # все локальные проверки разом — запускай перед завершением задачи
+mise run local-check               # быстрые локальные проверки без сети и серверов — запускай перед завершением задачи
+mise run check                     # полная проверка, то же что в CI (нужны сеть и порт 8080)
 mise run lint                      # backend + frontend + contract
 mise run lint:repo                 # workflows, схемы, Dockerfile, Markdown, typos
 mise run test                      # тесты бэкенда и фронтенда

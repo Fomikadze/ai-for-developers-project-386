@@ -40,8 +40,8 @@ run = "hk install --mise"
 [tasks.install]
 description = "Установить зависимости фронтенда и контракта"
 run = [
-  "pnpm --dir typespec install",
-  "pnpm --dir frontend install",
+  "[ -f typespec/package.json ] && pnpm --dir typespec install --frozen-lockfile || echo \"пропущено: нет typespec/package.json\"",
+  "[ -f frontend/package.json ] && pnpm --dir frontend install --frozen-lockfile || echo \"пропущено: нет frontend/package.json\"",
 ]
 
 [tasks.contract]
@@ -73,9 +73,9 @@ description = "Все линтеры"
 depends = ["lint:backend", "lint:frontend", "lint:contract"]
 
 [tasks."test:backend"]
-description = "Тесты бэкенда"
+description = "Тесты бэкенда и отчёт о покрытии (Kover)"
 dir = "backend"
-run = "[ -f gradlew ] || { echo \"пропущено: нет backend/gradlew\"; exit 0; }; ./gradlew test"
+run = "[ -f gradlew ] || { echo \"пропущено: нет backend/gradlew\"; exit 0; }; ./gradlew test koverXmlReport"
 
 [tasks."test:frontend"]
 description = "Тесты фронтенда"
@@ -164,7 +164,15 @@ run = "scripts/api-breaking.sh"
 description = "diff-cover: покрытие изменённых строк относительно origin/main (порог 80%)"
 run = "scripts/coverage-diff.sh"
 
-[tasks.check]
-description = "Все локальные проверки: линтеры, тесты, безопасность, API, покрытие изменённых строк"
+[tasks."local-check"]
+description = "Быстрые локальные проверки: линтеры, тесты, безопасность, API, покрытие изменённых строк (без сети и серверов)"
 depends = ["lint", "lint:repo", "test", "security", "api:breaking"]
 run = [{ task = "coverage:diff" }]
+
+[tasks.check]
+description = "Полная проверка, как в CI: local-check плюс ссылки, сообщения коммитов и smoke-тест"
+depends = ["lint", "lint:repo", "lint:links", "lint:commits", "test", "security", "api:breaking"]
+run = [
+  { task = "coverage:diff" },
+  { task = "smoke" },
+]
