@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 «Запись на звонок» — упрощённый аналог Cal.com (учебный проект Хекслета). Монорепозиторий: `typespec/` (контракт API), `backend/` (Kotlin + Ktor), `frontend/` (React + TypeScript + Vite + Mantine).
 
-Сейчас готовы спецификация, инфраструктура и каркас `backend/`. `frontend/` и `typespec/` пустые, поэтому их шаги в CI, хуках и задачах mise пропускаются, пока не появятся `frontend/package.json` и `typespec/package.json`.
+Сейчас готовы спецификация, инфраструктура и каркасы `backend/` и `frontend/`. `typespec/` пустой, поэтому шаги контракта в CI, хуках и задачах mise пропускаются, пока не появится `typespec/package.json`.
 
 Требования, решения и правила лежат в `docs/`. Таблица «какой файл читать для какой задачи» находится в разделе «Документация для ИИ-агента» в `README.md`. Сверяйся с ней перед началом задачи и читай все подходящие файлы.
 

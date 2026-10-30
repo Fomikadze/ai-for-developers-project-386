@@ -127,7 +127,7 @@ run = "typos"
 
 [tasks."lint:links"]
 description = "lychee: битые ссылки в Markdown (нужна сеть)"
-run = "lychee --no-progress --include-fragments --root-dir \"$PWD\" './**/*.md'"
+run = "git ls-files -z -- '*.md' | xargs -0 lychee --no-progress --include-fragments --root-dir \"$PWD\""
 
 [tasks."lint:commits"]
 description = "commitlint: сообщения коммитов ветки относительно origin/main"

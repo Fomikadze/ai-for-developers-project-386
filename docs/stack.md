@@ -24,8 +24,8 @@
   - i18n: `i18next` + `react-i18next` + `i18next-browser-languagedetector`, даты через `dayjs` с локалями `ru` и `en`
   - Клиентский SDK: `@hey-api/openapi-ts`, генерация в `frontend/src/api/generated/` (см. [api.md](api.md))
   - Юнит-тесты: Vitest, запуск `pnpm test`, покрытие в формате Cobertura для `coverage:diff`
-  - Линтеры: ESLint (flat config, `typescript-eslint`, `eslint-plugin-react-hooks`), stylelint (`stylelint-config-standard`) и Prettier; проверка типов `tsc --noEmit`; запуск `pnpm lint` (ESLint и stylelint), `pnpm format:check`, `pnpm typecheck`
-  - Сборка pnpm
+  - Линтеры: ESLint (flat config, `typescript-eslint`, `eslint-plugin-react-hooks`), stylelint (`stylelint-config-standard`) и Prettier; проверка типов `tsc --noEmit` (TypeScript 6: typescript-eslint пока не поддерживает 7.x); запуск `pnpm lint` (ESLint и stylelint), `pnpm format:check`, `pnpm typecheck`
+  - Сборка pnpm; переопределения транзитивных зависимостей (например, из-за уязвимостей) лежат в `frontend/pnpm-workspace.yaml`
 - e2e тесты: Playwright, живёт во `frontend/`, запуск `mise run e2e`
 - Запуск через Dockerfile и docker-compose (см. [tooling.md](tooling.md))
 - Инструменты, проверки качества, задачи, CI и smoke-тест: см. [tooling.md](tooling.md)
