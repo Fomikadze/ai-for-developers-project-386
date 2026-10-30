@@ -60,13 +60,11 @@ run = "[ -f gradlew ] || { echo \"пропущено: нет backend/gradlew\"; 
 
 [tasks."lint:frontend"]
 description = "ESLint, Prettier и проверка типов"
-dir = "frontend"
-run = "[ -f package.json ] || { echo \"пропущено: нет frontend/package.json\"; exit 0; }; pnpm lint && pnpm format:check && pnpm typecheck"
+run = "[ -f frontend/package.json ] || { echo \"пропущено: нет frontend/package.json\"; exit 0; }; pnpm --dir frontend lint && pnpm --dir frontend format:check && pnpm --dir frontend typecheck"
 
 [tasks."lint:contract"]
 description = "Проверка форматирования TypeSpec"
-dir = "typespec"
-run = "[ -f package.json ] || { echo \"пропущено: нет typespec/package.json\"; exit 0; }; pnpm exec tsp format --check '**/*.tsp'"
+run = "[ -f typespec/package.json ] || { echo \"пропущено: нет typespec/package.json\"; exit 0; }; pnpm --dir typespec exec tsp format --check '**/*.tsp'"
 
 [tasks.lint]
 description = "Все линтеры"
@@ -79,8 +77,7 @@ run = "[ -f gradlew ] || { echo \"пропущено: нет backend/gradlew\"; 
 
 [tasks."test:frontend"]
 description = "Тесты фронтенда"
-dir = "frontend"
-run = "[ -f package.json ] || { echo \"пропущено: нет frontend/package.json\"; exit 0; }; pnpm test"
+run = "[ -f frontend/package.json ] || { echo \"пропущено: нет frontend/package.json\"; exit 0; }; pnpm --dir frontend test"
 
 [tasks.test]
 description = "Все тесты"
