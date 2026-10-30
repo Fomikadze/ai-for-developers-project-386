@@ -1,0 +1,17 @@
+{
+  "app": { "name": "Calendar" },
+  "nav": { "book": "Book a call", "admin": "Admin" },
+  "home": {
+    "title": "Book a call",
+    "description": "Pick a convenient time for a meeting in a couple of clicks.",
+    "features": {
+      "title": "Features",
+      "items": [
+        "Free slots for the next 14 days",
+        "Instant booking confirmation",
+        "No double bookings"
+      ]
+    }
+  },
+  "errors": {}
+}
