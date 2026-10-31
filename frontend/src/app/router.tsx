@@ -1,16 +1,21 @@
-import { Outlet, createBrowserRouter } from 'react-router';
-import { Header } from '../components/Header';
+import { createBrowserRouter, type RouteObject } from 'react-router';
+import { Layout } from '../components/Layout';
 import { HomePage } from '../pages/home/HomePage';
+import { NotFoundPage } from '../pages/not-found/NotFoundPage';
 
-function Layout() {
-  return (
-    <>
-      <Header />
-      <Outlet />
-    </>
-  );
-}
+export const routes: RouteObject[] = [
+  {
+    element: <Layout />,
+    errorElement: (
+      <Layout>
+        <NotFoundPage />
+      </Layout>
+    ),
+    children: [
+      { path: '/', element: <HomePage /> },
+      { path: '*', element: <NotFoundPage /> },
+    ],
+  },
+];
 
-export const router = createBrowserRouter([
-  { element: <Layout />, children: [{ path: '/', element: <HomePage /> }] },
-]);
+export const router = createBrowserRouter(routes);

@@ -1,0 +1,7 @@
+.root {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 20% 15%, rgb(191 215 255 / 70%), transparent 45%),
+    radial-gradient(circle at 80% 5%, rgb(255 222 200 / 60%), transparent 40%),
+    var(--mantine-color-gray-0);
+}
