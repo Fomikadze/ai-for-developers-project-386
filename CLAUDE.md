@@ -57,3 +57,17 @@ pnpm --dir frontend exec playwright test <файл> -g "<имя теста>"
 - Коммиты пишутся по Conventional Commits (`тип(область): описание`, до 100 символов, без точки). Проверяет commitlint в хуке `commit-msg`.
 - Хуки hk (`hk.pkl`) запускают линтеры, typos и betterleaks на `pre-commit`, тесты, oasdiff и OSV-Scanner на `pre-push`. Новая проверка оформляется задачей в `mise.toml`, а в `hk.pkl` и CI добавляется только её вызов.
 - detekt, ArchUnit и stylelint подключаются как зависимости проектов, а не через mise. CLI Renovate через mise не ставится: установку блокирует trust policy. Подробности в `docs/tooling.md`.
+
+## Agent skills
+
+### Issue tracker
+
+Задачи ведутся в GitHub Issues (`gh` CLI). См. `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Стандартные метки: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. См. `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: один `GLOSSARY.md` и `docs/adr/` в корне. См. `docs/agents/domain.md`.
