@@ -2,7 +2,7 @@
 # Текст не переносим вручную: длинные строки допустимы.
 disable = ["MD013"]
 # Чужие скиллы (skills-lock.json) не правим, чтобы обновления не конфликтовали.
-exclude = [".claude/skills"]
+exclude = [".agents/skills", ".claude/skills"]
 
 [MD033]
 # <details> используется в README для блока Хекслета.
