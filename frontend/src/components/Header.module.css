@@ -1,0 +1,13 @@
+.root {
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+  background-color: rgb(255 255 255 / 80%);
+}
+
+.link {
+  color: var(--mantine-color-gray-7);
+}
+
+.link[aria-current='page'] {
+  color: var(--mantine-primary-color-filled);
+  font-weight: 600;
+}

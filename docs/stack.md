@@ -20,6 +20,8 @@
 - Фронтенд:
   - React + TypeScript + Vite
   - Mantine для UI (`@mantine/form`, `@mantine/dates`)
+  - Иконки: `@tabler/icons-react`
+  - Шрифты Roboto и Roboto Mono: `@fontsource-variable/roboto`, `@fontsource-variable/roboto-mono` (самостоятельный хостинг, без Google Fonts CDN)
   - React Router, TanStack Query, `libphonenumber-js` (зачем каждая — см. [frontend.md](frontend.md))
   - i18n: `i18next` + `react-i18next` + `i18next-browser-languagedetector`, даты через `dayjs` с локалями `ru` и `en`
   - Клиентский SDK: `@hey-api/openapi-ts`, генерация в `frontend/src/api/generated/` (см. [api.md](api.md))

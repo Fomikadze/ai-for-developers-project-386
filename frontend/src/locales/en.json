@@ -2,16 +2,21 @@
   "app": { "name": "Calendar" },
   "nav": { "book": "Book a call", "admin": "Admin" },
   "home": {
-    "title": "Book a call",
-    "description": "Pick a convenient time for a meeting in a couple of clicks.",
+    "badge": "Quick call booking",
+    "description": "Book a meeting in a minute: pick a meeting type and a convenient time.",
     "features": {
       "title": "Features",
       "items": [
-        "Free slots for the next 14 days",
-        "Instant booking confirmation",
-        "No double bookings"
+        "Choose a meeting type and a convenient time",
+        "Quick booking with confirmation and notes",
+        "Manage meeting types and view upcoming meetings in the admin panel"
       ]
     }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "This page does not exist. The link may be outdated or the address may contain a typo.",
+    "home": "Back to home"
   },
   "errors": {}
 }

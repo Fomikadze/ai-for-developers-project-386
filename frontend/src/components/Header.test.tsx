@@ -6,11 +6,11 @@ import { MemoryRouter } from 'react-router';
 import i18n from '../app/i18n';
 import { Header } from './Header';
 
-function renderHeader() {
+function renderHeader(path = '/') {
   return render(
     <MantineProvider>
       <I18nextProvider i18n={i18n}>
-        <MemoryRouter>
+        <MemoryRouter initialEntries={[path]}>
           <Header />
         </MemoryRouter>
       </I18nextProvider>
@@ -28,4 +28,12 @@ it('показывает ссылки и переключает язык', async
   await userEvent.click(screen.getByText('EN'));
 
   expect(await screen.findByRole('link', { name: 'Admin' })).toBeInTheDocument();
+});
+
+it('подсвечивает ссылку текущего раздела', async () => {
+  await i18n.changeLanguage('ru');
+  renderHeader('/admin');
+
+  expect(screen.getByRole('link', { name: 'Админка' })).toHaveAttribute('aria-current', 'page');
+  expect(screen.getByRole('link', { name: 'Записаться' })).not.toHaveAttribute('aria-current');
 });
