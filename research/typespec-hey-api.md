@@ -15,7 +15,7 @@
 Первичные источники:
 
 - README эмиттера `@typespec/openapi3@1.17.0` (`node_modules/@typespec/openapi3/README.md`), он же <https://typespec.io/docs/emitters/openapi3/reference/emitter/>;
-- TypeSpec HTTP: ответы и ошибки — <https://typespec.io/docs/libraries/http/responses/>, декораторы — <https://typespec.io/docs/standard-library/built-in-decorators/>, примеры — <https://typespec.io/docs/language-basics/documentation/> и <https://typespec.io/docs/standard-library/examples/>;
+- TypeSpec HTTP: операции и ответы — <https://typespec.io/docs/libraries/http/operations/>, ошибки — <https://typespec.io/docs/getting-started/getting-started-rest/03-handling-errors/>, декораторы — <https://typespec.io/docs/standard-library/built-in-decorators/>, примеры — <https://typespec.io/docs/language-basics/documentation/> и <https://typespec.io/docs/standard-library/examples/>;
 - hey-api: плагин TanStack Query — <https://heyapi.dev/openapi-ts/plugins/tanstack-query>, трансформеры — <https://heyapi.dev/openapi-ts/plugins/transformers>, типы конфига в `@hey-api/openapi-ts@0.99.0/dist/index.d.mts`, релиз 0.99.0 — <https://github.com/hey-api/openapi-ts/releases/tag/2026-06-22>;
 - oasdiff: `oasdiff breaking --help` и тексты правил в его выводе.
 
