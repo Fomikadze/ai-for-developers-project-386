@@ -1,0 +1,374 @@
+openapi: 3.1.0
+info:
+  title: Booking API
+  version: 0.1.0
+  description: |-
+    API «Запись на звонок»: типы встреч, свободные слоты и брони единственного владельца.
+    Время передаётся в UTC (ISO 8601 с `Z`), часовой пояс владельца — поле `timezone` в `GET /api/owner`.
+tags: []
+paths:
+  /api/bookings:
+    post:
+      operationId: Bookings_create
+      description: |-
+        Создать бронь. Порядок проверок: поля (`INVALID_*`, `VALIDATION_ERROR`) → тип встречи существует
+        (`MEETING_TYPE_NOT_FOUND`) → `start` совпадает со слотом (`SLOT_OUT_OF_RANGE`) → пересечение (`SLOT_TAKEN`).
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: The request conflicts with the current state of the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookingRequest'
+  /api/bookings/upcoming:
+    get:
+      operationId: Bookings_listUpcoming
+      description: Предстоящие брони всех типов (`end > now`) по возрастанию `start` (владелец).
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+  /api/health:
+    get:
+      operationId: getHealth
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+  /api/meeting-types:
+    get:
+      operationId: MeetingTypes_list
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MeetingType'
+    post:
+      operationId: MeetingTypes_create
+      description: Создать тип встречи (владелец).
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingType'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMeetingTypeRequest'
+  /api/meeting-types/{id}/slots:
+    get:
+      operationId: MeetingTypes_listSlots
+      description: Только свободные слоты на всё окно записи по возрастанию `start`.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Uuid'
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Slot'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /api/owner:
+    get:
+      operationId: getOwner
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Owner'
+components:
+  schemas:
+    ApiError:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+          description: Машиночитаемый код, по нему фронтенд показывает перевод `errors.<code>`.
+        message:
+          type: string
+          description: Текст для отладки на английском, пользователю не показывается.
+      description: Тело любого ответа с ошибкой.
+    Booking:
+      type: object
+      required:
+        - id
+        - meetingType
+        - start
+        - end
+        - guestName
+        - guestEmail
+        - guestPhone
+        - notes
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        meetingType:
+          $ref: '#/components/schemas/BookingMeetingType'
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        guestName:
+          type: string
+        guestEmail:
+          type: string
+        guestPhone:
+          type: string
+        notes:
+          anyOf:
+            - type: string
+            - type: 'null'
+          description: '`null`, если заметки нет или она пустая.'
+      examples:
+        - id: 9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d
+          meetingType:
+            id: 3f1c2a9e-5b7d-4c8e-9a01-2b3c4d5e6f70
+            title: Знакомство
+          start: '2026-11-02T04:00:00Z'
+          end: '2026-11-02T04:30:00Z'
+          guestName: Анна Смирнова
+          guestEmail: anna@example.com
+          guestPhone: '+77011234567'
+          notes: Хочу обсудить интеграцию.
+    BookingMeetingType:
+      type: object
+      required:
+        - id
+        - title
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        title:
+          type: string
+      description: Тип встречи в составе брони.
+    CreateBookingRequest:
+      type: object
+      required:
+        - meetingTypeId
+        - start
+        - guestName
+        - guestEmail
+        - guestPhone
+      properties:
+        meetingTypeId:
+          $ref: '#/components/schemas/Uuid'
+        start:
+          type: string
+          format: date-time
+          description: Старт одного из слотов `GET /api/meeting-types/{id}/slots`. `end` вычисляет сервер.
+        guestName:
+          $ref: '#/components/schemas/GuestName'
+        guestEmail:
+          $ref: '#/components/schemas/GuestEmail'
+        guestPhone:
+          $ref: '#/components/schemas/E164Phone'
+        notes:
+          type: string
+          maxLength: 500
+          description: Пустая строка приравнивается к отсутствию заметки.
+      description: 'Поля проверяются в порядке формы: `guestName` → `guestEmail` → `guestPhone` → `notes`.'
+      examples:
+        - meetingTypeId: 3f1c2a9e-5b7d-4c8e-9a01-2b3c4d5e6f70
+          start: '2026-11-02T04:00:00Z'
+          guestName: Анна Смирнова
+          guestEmail: anna@example.com
+          guestPhone: '+77011234567'
+          notes: Хочу обсудить интеграцию.
+    CreateMeetingTypeRequest:
+      type: object
+      required:
+        - title
+        - description
+        - durationMinutes
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 1000
+        durationMinutes:
+          type: integer
+          format: int32
+          minimum: 15
+          maximum: 540
+          description: Слот должен целиком помещаться в рабочие часы, кратность шагу стартов не требуется.
+      examples:
+        - title: Знакомство
+          description: Короткий звонок, чтобы обсудить задачу.
+          durationMinutes: 30
+    E164Phone:
+      type: string
+      pattern: ^\+[1-9]\d{6,14}$
+      description: Мобильный телефон в формате E.164.
+    ErrorCode:
+      type: string
+      enum:
+        - VALIDATION_ERROR
+        - INVALID_NAME
+        - INVALID_EMAIL
+        - INVALID_PHONE
+        - SLOT_OUT_OF_RANGE
+        - MEETING_TYPE_NOT_FOUND
+        - SLOT_TAKEN
+      description: Код ошибки. Единственный список кодов и условия — `docs/api.md`.
+    GuestEmail:
+      type: string
+      maxLength: 254
+      pattern: ^[A-Za-z0-9!#$%&'*+\/=?^_`\{\|\}~\-]+(?:\.[A-Za-z0-9!#$%&'*+\/=?^_`\{\|\}~\-]+)*@[A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])?)+$
+      description: 'Email гостя: WHATWG + dot-atom RFC 5321.'
+    GuestName:
+      type: string
+      minLength: 1
+      maxLength: 100
+      pattern: ^[\p{L}\p{M}]+(?:[ \-][\p{L}\p{M}]+)*$
+      description: 'Имя гостя: слова из букв любого алфавита, разделённые одним пробелом или дефисом.'
+    Health:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+    MeetingType:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - durationMinutes
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        title:
+          type: string
+        description:
+          type: string
+        durationMinutes:
+          type: integer
+          format: int32
+      examples:
+        - id: 3f1c2a9e-5b7d-4c8e-9a01-2b3c4d5e6f70
+          title: Знакомство
+          description: Короткий звонок, чтобы обсудить задачу.
+          durationMinutes: 30
+    Owner:
+      type: object
+      required:
+        - name
+        - title
+        - avatarUrl
+        - timezone
+      properties:
+        name:
+          type: string
+        title:
+          type: string
+          description: Подпись под именем.
+        avatarUrl:
+          anyOf:
+            - type: string
+              format: uri
+            - type: 'null'
+        timezone:
+          type: string
+          description: Часовой пояс владельца (IANA), в нём фронтенд показывает время и группирует слоты по дням.
+      examples:
+        - name: Иван Петров
+          title: Менеджер по работе с клиентами
+          avatarUrl: null
+          timezone: Asia/Almaty
+    Slot:
+      type: object
+      required:
+        - start
+        - end
+      properties:
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+      description: Свободный слот, полуинтервал `[start, end)`.
+      examples:
+        - start: '2026-11-02T04:00:00Z'
+          end: '2026-11-02T04:30:00Z'
+    Uuid:
+      type: string
+      format: uuid
+      description: Идентификатор, который генерирует сервер.
