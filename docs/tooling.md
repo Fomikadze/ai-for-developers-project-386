@@ -38,7 +38,7 @@ hk ставится через mise, конфигурация — `hk.pkl` в к
 | commitlint | `lint:commits`, хук `commit-msg` | сообщения коммитов | `commitlint.config.mjs` |
 | betterleaks | `security:secrets`, `security:secrets:staged` | секреты в истории git и в проиндексированных изменениях | — |
 | OSV-Scanner | `security:deps` | известные уязвимости в зависимостях по lock-файлам | — |
-| oasdiff | `api:breaking` | ломающие изменения `typespec/openapi.yaml` относительно `origin/main` | `scripts/api-breaking.sh` |
+| oasdiff | `api:breaking` | ломающие изменения `typespec/openapi.yaml` относительно `origin/main`; новый код ошибки — предупреждение, а не ошибка | `scripts/api-breaking.sh`, уровни правил в `scripts/oasdiff-severity-levels.txt` |
 | diff-cover | `coverage:diff` | покрытие изменённых строк, порог 80% | `scripts/coverage-diff.sh` |
 | Renovate | — | обновления зависимостей и версий в `mise.toml` через PR | `renovate.json` |
 

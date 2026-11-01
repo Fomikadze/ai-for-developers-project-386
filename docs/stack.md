@@ -2,7 +2,8 @@
 
 - Контракт (`typespec/`):
   - TypeSpec (`@typespec/http`, `@typespec/openapi3`)
-  - результат компиляции: `openapi.yaml` — единственный источник правды для фронтенда и тестов
+  - результат компиляции: `openapi.yaml` (OpenAPI 3.1.0) — единственный источник правды для фронтенда и тестов
+  - переопределения транзитивных зависимостей лежат в `typespec/pnpm-workspace.yaml`, как во фронтенде
   - форматирование: `tsp format --check`
 - Версии JDK, Node и pnpm задаются только в `mise.toml`, версии библиотек — в Gradle version catalog и `package.json`.
 - Бэкенд:
@@ -24,7 +25,8 @@
   - Шрифты Roboto и Roboto Mono: `@fontsource-variable/roboto`, `@fontsource-variable/roboto-mono` (самостоятельный хостинг, без Google Fonts CDN)
   - React Router, TanStack Query, `libphonenumber-js` (зачем каждая — см. [frontend.md](frontend.md))
   - i18n: `i18next` + `react-i18next` + `i18next-browser-languagedetector`, даты через `dayjs` с локалями `ru` и `en`
-  - Клиентский SDK: `@hey-api/openapi-ts`, генерация в `frontend/src/api/generated/` (см. [api.md](api.md))
+  - Клиентский SDK: `@hey-api/openapi-ts` с плагинами `@tanstack/react-query` и `zod`, генерация в `frontend/src/api/generated/` (см. [api.md](api.md))
+  - Валидация форм: `zod`-схемы из SDK через `zodResolver` для `@mantine/form` (см. [frontend.md](frontend.md#библиотеки))
   - Юнит-тесты: Vitest, запуск `pnpm test`, покрытие в формате Cobertura для `coverage:diff`
   - Линтеры: ESLint (flat config, `typescript-eslint`, `eslint-plugin-react-hooks`), stylelint (`stylelint-config-standard`) и Prettier; проверка типов `tsc --noEmit` (TypeScript 6: typescript-eslint пока не поддерживает 7.x); запуск `pnpm lint` (ESLint и stylelint), `pnpm format:check`, `pnpm typecheck`
   - Сборка pnpm; переопределения транзитивных зависимостей (например, из-за уязвимостей) лежат в `frontend/pnpm-workspace.yaml`
