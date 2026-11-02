@@ -21,9 +21,10 @@ for (const { lng, next, submit, done } of cases) {
     await page.getByRole('link', { name: new RegExp(title) }).click();
     await expect(page).toHaveURL(`/book/${id}`);
 
-    // Первый доступный день и первый слот; время запоминаем, чтобы проверить его исчезновение.
-    await page.getByRole('button', { name: dayButton }).first().click();
-    const slot = page.getByRole('button', { name: /^\d{2}:\d{2}$/ }).first();
+    // Календарь владельца общий для всех e2e, а они идут параллельно: берём день и слот,
+    // которые другие тесты не занимают (они берут первый и последний). Время запоминаем.
+    await page.getByRole('button', { name: dayButton }).nth(3).click();
+    const slot = page.getByRole('button', { name: /^\d{2}:\d{2}$/ }).nth(lng === 'ru' ? 2 : 3);
     const time = (await slot.textContent())!;
     await slot.click();
     await page.getByRole('button', { name: next, exact: true }).click();
@@ -45,7 +46,7 @@ for (const { lng, next, submit, done } of cases) {
 
     // И в интерфейсе: в том же дне этого времени больше нет.
     await page.goto(`/book/${id}`);
-    await page.getByRole('button', { name: dayButton }).first().click();
+    await page.getByRole('button', { name: dayButton }).nth(3).click();
     await expect(page.getByRole('button', { name: time, exact: true })).toHaveCount(0);
   });
 }
