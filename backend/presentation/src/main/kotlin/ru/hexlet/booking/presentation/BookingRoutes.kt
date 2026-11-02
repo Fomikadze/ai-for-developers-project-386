@@ -4,6 +4,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
@@ -12,6 +13,8 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import ru.hexlet.booking.application.CreateBooking
 import ru.hexlet.booking.application.CreateBookingHandler
+import ru.hexlet.booking.application.ListUpcomingBookings
+import ru.hexlet.booking.application.ListUpcomingBookingsHandler
 import ru.hexlet.booking.domain.Booking
 
 @Serializable
@@ -52,7 +55,13 @@ private fun JsonObject.raw(key: String): Any? =
         else -> value
     }
 
-fun Route.bookingRoutes(createBooking: CreateBookingHandler) {
+fun Route.bookingRoutes(
+    createBooking: CreateBookingHandler,
+    listUpcomingBookings: ListUpcomingBookingsHandler,
+) {
+    get("/api/bookings/upcoming") {
+        call.respond(listUpcomingBookings.handle(ListUpcomingBookings).map { it.toResponse() })
+    }
     post("/api/bookings") {
         // Тело, которое не объект, даёт BadRequestException и VALIDATION_ERROR.
         val body = call.receive<JsonObject>()
