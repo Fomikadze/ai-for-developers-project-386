@@ -50,13 +50,17 @@ interface ListSlotsHandler : QueryHandler<ListSlots, List<Slot>>
 
 class ListSlotsHandlerImpl(
     private val repository: MeetingTypeRepository,
+    private val bookings: BookingRepository,
     private val clock: Clock,
 ) : ListSlotsHandler {
     override suspend fun handle(query: ListSlots): List<Slot> {
         val meetingType =
             runCatching { UUID.fromString(query.meetingTypeId) }.getOrNull()?.let { repository.find(it) }
                 ?: throw ApiException(ErrorCode.MEETING_TYPE_NOT_FOUND, "Meeting type not found")
-        return SlotGenerator.generate(Duration.ofMinutes(meetingType.durationMinutes.toLong()), clock.now())
+        val taken = bookings.all()
+        return SlotGenerator
+            .generate(Duration.ofMinutes(meetingType.durationMinutes.toLong()), clock.now())
+            .filter { slot -> taken.none { it.overlaps(slot) } }
     }
 }
 
