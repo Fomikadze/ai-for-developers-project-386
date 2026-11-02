@@ -19,6 +19,8 @@ import ru.hexlet.booking.application.GetOwnerHandler
 import ru.hexlet.booking.application.GetOwnerHandlerImpl
 import ru.hexlet.booking.application.ListMeetingTypesHandler
 import ru.hexlet.booking.application.ListMeetingTypesHandlerImpl
+import ru.hexlet.booking.application.ListSlotsHandler
+import ru.hexlet.booking.application.ListSlotsHandlerImpl
 import ru.hexlet.booking.application.MeetingTypeRepository
 import ru.hexlet.booking.application.OwnerProvider
 import ru.hexlet.booking.domain.Owner
@@ -32,6 +34,7 @@ fun applicationModule(): Module =
         single<GetOwnerHandler> { GetOwnerHandlerImpl(get()) }
         single<ListMeetingTypesHandler> { ListMeetingTypesHandlerImpl(get()) }
         single<CreateMeetingTypeHandler> { CreateMeetingTypeHandlerImpl(get()) }
+        single<ListSlotsHandler> { ListSlotsHandlerImpl(get(), get()) }
     }
 
 /** Реализации портов: часы и хранилища в памяти. Новый вызов даёт свежие хранилища. */
@@ -73,9 +76,11 @@ fun Application.configureApp(modules: List<Module>) {
     val getOwner by inject<GetOwnerHandler>()
     val listMeetingTypes by inject<ListMeetingTypesHandler>()
     val createMeetingType by inject<CreateMeetingTypeHandler>()
+    val listSlots by inject<ListSlotsHandler>()
     routing {
         healthRoutes()
         catalogRoutes(getOwner, listMeetingTypes, createMeetingType)
+        slotRoutes(listSlots)
     }
 }
 
