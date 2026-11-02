@@ -109,6 +109,17 @@ class BookingRoutesTest {
         }
 
     @Test
+    fun `start with milliseconds is accepted and returned without them`() =
+        testBooking {
+            val id = client.createTypeId()
+            val response = client.book(bodyJson(id, "2026-01-06T12:00:00.000Z"))
+
+            assertEquals(HttpStatusCode.Created, response.status)
+            val o = Json.parseToJsonElement(response.bodyAsText()).jsonObject
+            assertEquals("2026-01-06T12:00:00Z", o.getValue("start").jsonPrimitive.content)
+        }
+
+    @Test
     fun `missing or empty notes become null`() =
         testBooking {
             val id = client.createTypeId()

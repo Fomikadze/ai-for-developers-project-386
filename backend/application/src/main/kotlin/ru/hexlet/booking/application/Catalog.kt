@@ -3,9 +3,6 @@ package ru.hexlet.booking.application
 import ru.hexlet.booking.domain.MeetingType
 import ru.hexlet.booking.domain.Owner
 import ru.hexlet.booking.domain.Schedule
-import ru.hexlet.booking.domain.Slot
-import ru.hexlet.booking.domain.SlotGenerator
-import java.time.Duration
 import java.util.UUID
 
 /** Порт хранилища типов встреч. */
@@ -41,28 +38,10 @@ data class CreateMeetingType(
     val durationMinutes: Int,
 )
 
-/** [meetingTypeId] приходит строкой из пути: не-UUID трактуется как несуществующий тип. */
-data class ListSlots(
-    val meetingTypeId: String,
-)
-
-interface ListSlotsHandler : QueryHandler<ListSlots, List<Slot>>
-
-class ListSlotsHandlerImpl(
-    private val repository: MeetingTypeRepository,
-    private val bookings: BookingRepository,
-    private val clock: Clock,
-) : ListSlotsHandler {
-    override suspend fun handle(query: ListSlots): List<Slot> {
-        val meetingType =
-            runCatching { UUID.fromString(query.meetingTypeId) }.getOrNull()?.let { repository.find(it) }
-                ?: throw ApiException(ErrorCode.MEETING_TYPE_NOT_FOUND, "Meeting type not found")
-        val taken = bookings.all()
-        return SlotGenerator
-            .generate(Duration.ofMinutes(meetingType.durationMinutes.toLong()), clock.now())
-            .filter { slot -> taken.none { it.overlaps(slot) } }
-    }
-}
+/** Находит тип по id из запроса. Не-UUID трактуется как несуществующий тип. */
+suspend fun MeetingTypeRepository.findOrThrow(rawId: String): MeetingType =
+    runCatching { UUID.fromString(rawId) }.getOrNull()?.let { find(it) }
+        ?: throw ApiException(ErrorCode.MEETING_TYPE_NOT_FOUND, "Meeting type not found")
 
 interface GetOwnerHandler : QueryHandler<GetOwner, OwnerView>
 
