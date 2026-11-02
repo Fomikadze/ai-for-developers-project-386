@@ -22,7 +22,7 @@ export function UpcomingTab() {
       </Alert>
     );
   }
-  if (list.isPending || owner.isPending) return <Loader mt="lg" />;
+  if (!list.data || !owner.data) return <Loader mt="lg" />;
   if (list.data.length === 0) {
     return (
       <Text c="dimmed" mt="lg">
