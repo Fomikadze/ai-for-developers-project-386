@@ -23,6 +23,17 @@
     "title": "Choose a meeting type",
     "empty": "No meeting types available yet."
   },
+  "slots": {
+    "none": "No available time",
+    "pickDate": "Pick a date",
+    "typeNotFound": "Meeting type not found",
+    "toCatalog": "Back to meeting types",
+    "back": "Back",
+    "continue": "Continue",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "dayLabel": "{{date}}, available slots: {{count}}"
+  },
   "admin": {
     "title": "Admin",
     "tabs": { "meetingTypes": "Meeting types" },
