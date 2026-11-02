@@ -6,6 +6,7 @@ import ru.hexlet.booking.application.MeetingTypeRepository
 import ru.hexlet.booking.application.OwnerProvider
 import ru.hexlet.booking.domain.MeetingType
 import ru.hexlet.booking.domain.Owner
+import java.util.UUID
 
 class InMemoryMeetingTypeRepository : MeetingTypeRepository {
     private val mutex = Mutex()
@@ -16,6 +17,8 @@ class InMemoryMeetingTypeRepository : MeetingTypeRepository {
     }
 
     override suspend fun all(): List<MeetingType> = mutex.withLock { items.toList() }
+
+    override suspend fun find(id: UUID): MeetingType? = mutex.withLock { items.firstOrNull { it.id == id } }
 }
 
 /** Владелец, заданный при старте (из конфигурации приложения). */
