@@ -18,7 +18,7 @@ import {
   getOwnerOptions,
   meetingTypesListOptions,
 } from '../../api/generated/@tanstack/react-query.gen';
-import { errorText } from '../../lib/errors';
+import { apiErrorCode, errorText } from '../../lib/errors';
 
 export function BookCatalogPage() {
   const { t, i18n } = useTranslation();
@@ -26,7 +26,7 @@ export function BookCatalogPage() {
   const types = useQuery(meetingTypesListOptions());
 
   const failure = owner.error ?? types.error;
-  const code = (failure as { code?: unknown } | null)?.code;
+  const code = apiErrorCode(failure);
 
   return (
     <Container size="md" py={56}>

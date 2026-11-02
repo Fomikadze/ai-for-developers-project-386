@@ -1,13 +1,20 @@
 import { expect, test } from '@playwright/test';
+import { pickFreeSlot } from './slots-helper';
 
 const cases = [
-  { lng: 'ru', next: 'Продолжить', submit: 'Записаться', done: 'Запись подтверждена' },
-  { lng: 'en', next: 'Continue', submit: 'Book', done: 'Booking confirmed' },
+  {
+    lng: 'ru',
+    time: '10:00',
+    next: 'Продолжить',
+    submit: 'Записаться',
+    done: 'Запись подтверждена',
+  },
+  { lng: 'en', time: '10:30', next: 'Continue', submit: 'Book', done: 'Booking confirmed' },
 ];
 
 const dayButton = /(слотов|slots): \d+/;
 
-for (const { lng, next, submit, done } of cases) {
+for (const { lng, time, next, submit, done } of cases) {
   test(`гость записывается на свободный слот (${lng})`, async ({ page, request }) => {
     const title = `E2E ${lng} ${Date.now()}`;
     const created = await request.post('/api/meeting-types', {
@@ -21,12 +28,11 @@ for (const { lng, next, submit, done } of cases) {
     await page.getByRole('link', { name: new RegExp(title) }).click();
     await expect(page).toHaveURL(`/book/${id}`);
 
-    // Календарь владельца общий для всех e2e, а они идут параллельно: берём день и слот,
-    // которые другие тесты не занимают (они берут первый и последний). Время запоминаем.
-    await page.getByRole('button', { name: dayButton }).nth(3).click();
-    const slot = page.getByRole('button', { name: /^\d{2}:\d{2}$/ }).nth(lng === 'ru' ? 2 : 3);
-    const time = (await slot.textContent())!;
-    await slot.click();
+    // Календарь владельца общий для всех e2e и живёт между прогонами: берём случайный день,
+    // где слот на своё время суток свободен (у каждого теста оно своё).
+    const picked = await pickFreeSlot(request, id, time);
+    await page.getByRole('button', { name: dayButton }).nth(picked.dayIndex).click();
+    await page.getByRole('button', { name: time, exact: true }).click();
     await page.getByRole('button', { name: next, exact: true }).click();
     await expect(page).toHaveURL(/\/confirm\?start=/);
     const start = new Date(new URL(page.url()).searchParams.get('start')!).toISOString();
@@ -46,7 +52,7 @@ for (const { lng, next, submit, done } of cases) {
 
     // И в интерфейсе: в том же дне этого времени больше нет.
     await page.goto(`/book/${id}`);
-    await page.getByRole('button', { name: dayButton }).nth(3).click();
+    await page.getByRole('button', { name: dayButton }).nth(picked.dayIndex).click();
     await expect(page.getByRole('button', { name: time, exact: true })).toHaveCount(0);
   });
 }

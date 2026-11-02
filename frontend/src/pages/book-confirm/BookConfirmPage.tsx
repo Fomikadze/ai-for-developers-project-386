@@ -4,7 +4,6 @@ import {
   Card,
   Container,
   Group,
-  Loader,
   SimpleGrid,
   Stack,
   Text,
@@ -26,7 +25,8 @@ import {
 } from '../../api/generated/@tanstack/react-query.gen';
 import { bookingFormSchema, fieldErrorCode } from '../../lib/bookingForm';
 import { loadDraft, saveDraft, type GuestDraft } from '../../lib/draft';
-import { errorText } from '../../lib/errors';
+import { MeetingTypeNotFound, PageLoader } from '../../components/PageState';
+import { apiErrorCode, errorText } from '../../lib/errors';
 import { formatSlot } from '../../lib/format';
 
 const fields = ['guestName', 'guestEmail', 'guestPhone'] as const;
@@ -71,7 +71,7 @@ export function BookConfirmPage() {
       void navigate('/book/success', { state: { booking } });
     },
     onError: async (error) => {
-      const code = (error as { code?: unknown }).code;
+      const code = apiErrorCode(error);
       const field = fields.find((name) => fieldErrorCode[name] === code);
       if (field) {
         form.setFieldError(field, errorText(i18n, code));
@@ -95,29 +95,14 @@ export function BookConfirmPage() {
     return (
       <Container size="md" py={56}>
         <Alert color="red" role="alert">
-          {errorText(i18n, (failure as { code?: unknown }).code)}
+          {errorText(i18n, apiErrorCode(failure))}
         </Alert>
       </Container>
     );
   }
-  if (types.data && !type) {
-    return (
-      <Container size="md" py={56}>
-        <Stack align="flex-start">
-          <Title order={2}>{t('slots.typeNotFound')}</Title>
-          <Button component={Link} to="/book">
-            {t('slots.toCatalog')}
-          </Button>
-        </Stack>
-      </Container>
-    );
-  }
+  if (types.data && !type) return <MeetingTypeNotFound />;
   if (!type || !owner.data) {
-    return (
-      <Container size="md" py={56}>
-        <Loader />
-      </Container>
-    );
+    return <PageLoader />;
   }
 
   const submit = form.onSubmit((values) => {

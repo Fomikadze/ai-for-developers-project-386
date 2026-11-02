@@ -110,3 +110,21 @@ it('неизвестный тип встречи: сообщение и кноп
 
   expect(router.state.location.pathname).toBe('/book');
 });
+
+it('слоты ответили 404 MEETING_TYPE_NOT_FOUND: то же сообщение и кнопка возврата', async () => {
+  const user = userEvent.setup();
+  const { router } = await renderRoute('/book/a1', {
+    api: {
+      ...api,
+      'GET /api/meeting-types/a1/slots': {
+        status: 404,
+        body: { code: 'MEETING_TYPE_NOT_FOUND', message: 'x' },
+      },
+    },
+  });
+
+  expect(await screen.findByText('Тип встречи не найден')).toBeInTheDocument();
+  await user.click(screen.getByRole('link', { name: 'К выбору встречи' }));
+
+  expect(router.state.location.pathname).toBe('/book');
+});

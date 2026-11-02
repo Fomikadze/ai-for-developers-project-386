@@ -22,7 +22,7 @@ import {
   meetingTypesListQueryKey,
 } from '../../api/generated/@tanstack/react-query.gen';
 import { zCreateMeetingTypeRequest } from '../../api/generated/zod.gen';
-import { errorText } from '../../lib/errors';
+import { apiErrorCode, errorText } from '../../lib/errors';
 
 type Values = { title: string; description: string; durationMinutes: number | string };
 
@@ -57,7 +57,7 @@ export function MeetingTypesTab() {
     onError: (error) => {
       notifications.show({
         color: 'red',
-        message: errorText(i18n, (error as { code?: unknown }).code),
+        message: errorText(i18n, apiErrorCode(error)),
       });
     },
   });
@@ -72,7 +72,7 @@ export function MeetingTypesTab() {
     });
   });
 
-  const listError = (list.error as { code?: unknown } | null)?.code;
+  const listError = apiErrorCode(list.error);
 
   return (
     <Stack gap="xl" mt="lg">

@@ -53,9 +53,7 @@ class CreateBookingHandlerImpl(
             (command.start as? String)?.let { runCatching { Instant.parse(it) }.getOrNull() }
                 ?: invalid(ErrorCode.VALIDATION_ERROR, "start is required and must be a date")
 
-        val meetingType =
-            runCatching { UUID.fromString(typeId) }.getOrNull()?.let { meetingTypes.find(it) }
-                ?: throw ApiException(ErrorCode.MEETING_TYPE_NOT_FOUND, "Meeting type not found")
+        val meetingType = meetingTypes.findOrThrow(typeId)
         val duration = Duration.ofMinutes(meetingType.durationMinutes.toLong())
         if (SlotGenerator.generate(duration, clock.now()).none { it.start == start }) {
             invalid(ErrorCode.SLOT_OUT_OF_RANGE, "start does not match a slot")

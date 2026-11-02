@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { pickFreeSlot } from './slots-helper';
 
 test('бронь гостя видна владельцу во вкладке «Предстоящие встречи»', async ({ page, request }) => {
   const stamp = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -17,15 +18,13 @@ test('бронь гостя видна владельцу во вкладке «
   await page.addInitScript(() => localStorage.setItem('i18nextLng', 'ru'));
   await page.goto(`/book/${id}`);
 
-  // Последний день и последний слот: так реже пересекаемся с бронями других тестов.
+  // Случайный день и своё время суток: бэкенд живёт между прогонами, другие тесты занимают другое время.
+  const picked = await pickFreeSlot(request, id, '15:00');
   await page
     .getByRole('button', { name: /свободных слотов/ })
-    .last()
+    .nth(picked.dayIndex)
     .click();
-  await page
-    .getByRole('button', { name: /^\d{2}:\d{2}$/ })
-    .last()
-    .click();
+  await page.getByRole('button', { name: picked.time, exact: true }).click();
   await page.getByRole('button', { name: 'Продолжить' }).click();
 
   await page.getByLabel('Имя').fill(guestName);
