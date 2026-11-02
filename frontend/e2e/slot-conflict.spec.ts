@@ -1,4 +1,5 @@
 import { expect, test, type APIRequestContext } from '@playwright/test';
+import { pickFreeSlot } from './slots-helper';
 
 async function createType(request: APIRequestContext, title: string): Promise<string> {
   const created = await request.post('/api/meeting-types', {
@@ -19,12 +20,13 @@ test('слот заняли между выбором и отправкой: г�
   await page.addInitScript(() => localStorage.setItem('i18nextLng', 'ru'));
   await page.goto(`/book/${typeId}`);
 
-  const times = page.getByRole('button', { name: /^\d{2}:\d{2}$/ });
+  // Случайный день и своё время суток (14:00, затем 14:30): повторные прогоны не упираются в занятое.
+  const first = await pickFreeSlot(request, typeId, '14:00');
   await page
     .getByRole('button', { name: /свободных слотов/ })
-    .first()
+    .nth(first.dayIndex)
     .click();
-  await times.first().click();
+  await page.getByRole('button', { name: first.time, exact: true }).click();
   await page.getByRole('button', { name: 'Продолжить' }).click();
   await expect(page).toHaveURL(/\/confirm\?start=/);
   const takenStart = new URL(page.url()).searchParams.get('start')!;
@@ -51,11 +53,12 @@ test('слот заняли между выбором и отправкой: г�
   await expect(page.getByText('Это время уже заняли, выберите другое')).toBeVisible();
   await expect(page).toHaveURL(`/book/${typeId}`);
 
+  const second = await pickFreeSlot(request, typeId, '14:30');
   await page
     .getByRole('button', { name: /свободных слотов/ })
-    .first()
+    .nth(second.dayIndex)
     .click();
-  await times.first().click();
+  await page.getByRole('button', { name: second.time, exact: true }).click();
   await page.getByRole('button', { name: 'Продолжить' }).click();
   await expect(page).toHaveURL(/\/confirm\?start=/);
   expect(new URL(page.url()).searchParams.get('start')).not.toBe(takenStart);
