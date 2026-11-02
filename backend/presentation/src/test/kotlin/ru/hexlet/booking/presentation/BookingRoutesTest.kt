@@ -9,6 +9,10 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
@@ -259,5 +263,70 @@ class BookingRoutesTest {
             val long = client.createTypeId(60)
             assertEquals(out, client.book(bodyJson(long, "2026-01-06T12:30:00Z")).error())
             assertEquals(HttpStatusCode.Created, client.book(bodyJson(long, "2026-01-07T12:00:00Z")).status)
+        }
+
+    @Test
+    fun `overlap with a booking of any type is SLOT_TAKEN`() =
+        testBooking {
+            val short = client.createTypeId(30)
+            val long = client.createTypeId(60)
+            val taken = HttpStatusCode.Conflict to "SLOT_TAKEN"
+            // 09:30-10:30 (long) занимает 09:30-10:30
+            assertEquals(HttpStatusCode.Created, client.book(bodyJson(long, "2026-01-06T04:30:00Z")).status)
+            // полное наложение тем же типом
+            assertEquals(taken, client.book(bodyJson(long, "2026-01-06T04:30:00Z")).error())
+            // полное наложение другим типом
+            assertEquals(taken, client.book(bodyJson(short, "2026-01-06T04:30:00Z")).error())
+            // частичное: 30 минут внутри брони
+            assertEquals(taken, client.book(bodyJson(short, "2026-01-06T05:00:00Z")).error())
+            // частичное: 60 минут с 09:00 заходит на начало брони
+            assertEquals(taken, client.book(bodyJson(long, "2026-01-06T04:00:00Z")).error())
+            // частичное: 60 минут с 10:00 заходит на конец брони
+            assertEquals(taken, client.book(bodyJson(long, "2026-01-06T05:00:00Z")).error())
+        }
+
+    @Test
+    fun `adjacent bookings on both sides are allowed`() =
+        testBooking {
+            val short = client.createTypeId(30)
+            val long = client.createTypeId(60)
+            assertEquals(HttpStatusCode.Created, client.book(bodyJson(long, "2026-01-06T04:30:00Z")).status)
+            // заканчивается в момент начала брони
+            assertEquals(HttpStatusCode.Created, client.book(bodyJson(short, "2026-01-06T04:00:00Z")).status)
+            // начинается в момент окончания брони
+            assertEquals(HttpStatusCode.Created, client.book(bodyJson(short, "2026-01-06T05:30:00Z")).status)
+        }
+
+    @Test
+    fun `slot taken is the last check`() =
+        testBooking {
+            val id = client.createTypeId(30)
+            assertEquals(HttpStatusCode.Created, client.book(bodyJson(id)).status)
+            val badName = bodyJson(id, overrides = mapOf("guestName" to "\"1\""))
+            assertEquals(badRequest to "INVALID_NAME", client.book(badName).error())
+            val outOfRange = bodyJson(id, "2026-01-06T04:15:00Z")
+            assertEquals(badRequest to "SLOT_OUT_OF_RANGE", client.book(outOfRange).error())
+        }
+
+    @Test
+    fun `concurrent overlapping requests produce exactly one 201`() =
+        testBooking {
+            val short = client.createTypeId(30)
+            val long = client.createTypeId(60)
+            val bodies =
+                List(40) { i ->
+                    when (i % 3) {
+                        0 -> bodyJson(short, "2026-01-06T04:30:00Z")
+                        1 -> bodyJson(long, "2026-01-06T04:00:00Z")
+                        else -> bodyJson(long, "2026-01-06T04:30:00Z")
+                    }
+                }
+            // все варианты пересекаются в 09:30-10:00
+            val results =
+                withContext(Dispatchers.Default) {
+                    bodies.map { async { client.book(it).status } }.awaitAll()
+                }
+            assertEquals(1, results.count { it == HttpStatusCode.Created })
+            assertEquals(bodies.size - 1, results.count { it == HttpStatusCode.Conflict })
         }
 }

@@ -27,9 +27,12 @@ class InMemoryBookingRepository : BookingRepository {
     private val mutex = Mutex()
     private val items = mutableListOf<Booking>()
 
-    override suspend fun add(booking: Booking) {
-        mutex.withLock { items.add(booking) }
-    }
+    override suspend fun addIfFree(booking: Booking): Boolean =
+        mutex.withLock {
+            val free = items.none { it.start < booking.end && booking.start < it.end }
+            if (free) items.add(booking)
+            free
+        }
 
     override suspend fun all(): List<Booking> = mutex.withLock { items.toList() }
 }
