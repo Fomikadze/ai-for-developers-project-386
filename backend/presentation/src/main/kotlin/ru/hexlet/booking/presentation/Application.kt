@@ -12,7 +12,10 @@ import org.koin.dsl.module
 import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
+import ru.hexlet.booking.application.BookingRepository
 import ru.hexlet.booking.application.Clock
+import ru.hexlet.booking.application.CreateBookingHandler
+import ru.hexlet.booking.application.CreateBookingHandlerImpl
 import ru.hexlet.booking.application.CreateMeetingTypeHandler
 import ru.hexlet.booking.application.CreateMeetingTypeHandlerImpl
 import ru.hexlet.booking.application.GetOwnerHandler
@@ -25,6 +28,7 @@ import ru.hexlet.booking.application.MeetingTypeRepository
 import ru.hexlet.booking.application.OwnerProvider
 import ru.hexlet.booking.domain.Owner
 import ru.hexlet.booking.infrastructure.ConfiguredOwnerProvider
+import ru.hexlet.booking.infrastructure.InMemoryBookingRepository
 import ru.hexlet.booking.infrastructure.InMemoryMeetingTypeRepository
 import ru.hexlet.booking.infrastructure.SystemClock
 
@@ -34,7 +38,8 @@ fun applicationModule(): Module =
         single<GetOwnerHandler> { GetOwnerHandlerImpl(get()) }
         single<ListMeetingTypesHandler> { ListMeetingTypesHandlerImpl(get()) }
         single<CreateMeetingTypeHandler> { CreateMeetingTypeHandlerImpl(get()) }
-        single<ListSlotsHandler> { ListSlotsHandlerImpl(get(), get()) }
+        single<ListSlotsHandler> { ListSlotsHandlerImpl(get(), get(), get()) }
+        single<CreateBookingHandler> { CreateBookingHandlerImpl(get(), get(), get()) }
     }
 
 /** Реализации портов: часы и хранилища в памяти. Новый вызов даёт свежие хранилища. */
@@ -42,6 +47,7 @@ fun infrastructureModule(): Module =
     module {
         single<Clock> { SystemClock() }
         single<MeetingTypeRepository> { InMemoryMeetingTypeRepository() }
+        single<BookingRepository> { InMemoryBookingRepository() }
         single<OwnerProvider> { ConfiguredOwnerProvider(get<ApplicationConfig>().owner()) }
     }
 
@@ -77,10 +83,12 @@ fun Application.configureApp(modules: List<Module>) {
     val listMeetingTypes by inject<ListMeetingTypesHandler>()
     val createMeetingType by inject<CreateMeetingTypeHandler>()
     val listSlots by inject<ListSlotsHandler>()
+    val createBooking by inject<CreateBookingHandler>()
     routing {
         healthRoutes()
         catalogRoutes(getOwner, listMeetingTypes, createMeetingType)
         slotRoutes(listSlots)
+        bookingRoutes(createBooking)
     }
 }
 
