@@ -1,6 +1,11 @@
 {
-  "app": { "name": "Calendar" },
-  "nav": { "book": "Book a call", "admin": "Admin" },
+  "app": {
+    "name": "Calendar"
+  },
+  "nav": {
+    "book": "Book a call",
+    "admin": "Admin"
+  },
   "home": {
     "badge": "Quick call booking",
     "description": "Book a meeting in a minute: pick a meeting type and a convenient time.",
@@ -18,7 +23,9 @@
     "description": "This page does not exist. The link may be outdated or the address may contain a typo.",
     "home": "Back to home"
   },
-  "meetingType": { "duration": "{{count}} min" },
+  "meetingType": {
+    "duration": "{{count}} min"
+  },
   "catalog": {
     "title": "Choose a meeting type",
     "empty": "No meeting types available yet."
@@ -36,7 +43,9 @@
   },
   "admin": {
     "title": "Admin",
-    "tabs": { "meetingTypes": "Meeting types" },
+    "tabs": {
+      "meetingTypes": "Meeting types"
+    },
     "meetingTypes": {
       "listTitle": "Your meeting types",
       "empty": "No meeting types yet.",
@@ -59,7 +68,17 @@
     "INVALID_PHONE": "Enter a phone number in international format, e.g. +77001234567.",
     "SLOT_OUT_OF_RANGE": "This time is not available for booking. Pick another one.",
     "MEETING_TYPE_NOT_FOUND": "Meeting type not found.",
-    "SLOT_TAKEN": "This time was just taken. Pick another one.",
+    "SLOT_TAKEN": "This time is already taken, pick another one",
     "UNKNOWN": "Something went wrong. Please try again."
+  },
+  "confirm": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "notes": "Notes (optional)",
+    "submit": "Book"
+  },
+  "success": {
+    "title": "Booking confirmed"
   }
 }
