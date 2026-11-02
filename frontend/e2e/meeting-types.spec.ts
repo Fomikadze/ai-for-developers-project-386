@@ -10,7 +10,7 @@ test('тип встречи, созданный в админке, виден г
   await page.getByLabel('Описание').fill(description);
   await page.getByLabel('Длительность, мин').fill('45');
   await page.getByRole('button', { name: 'Создать' }).click();
-  await expect(page.getByText(title)).toBeVisible();
+  await expect(page.getByText(title, { exact: true })).toBeVisible();
 
   await page.goto('/book');
   const card = page.getByRole('link').filter({ hasText: title });

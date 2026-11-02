@@ -10,7 +10,11 @@ import java.util.UUID
 
 /** Порт хранилища броней. */
 interface BookingRepository {
-    suspend fun add(booking: Booking)
+    /**
+     * Вставляет бронь, если её интервал `[start, end)` не пересекается ни с одной существующей.
+     * Проверка и вставка атомарны. Возвращает `false`, если слот занят.
+     */
+    suspend fun addIfFree(booking: Booking): Boolean
 
     suspend fun all(): List<Booking>
 }
@@ -54,7 +58,7 @@ class CreateBookingHandlerImpl(
                 ?: throw ApiException(ErrorCode.MEETING_TYPE_NOT_FOUND, "Meeting type not found")
         val duration = Duration.ofMinutes(meetingType.durationMinutes.toLong())
         if (SlotGenerator.generate(duration, clock.now()).none { it.start == start }) {
-            throw ApiException(ErrorCode.SLOT_OUT_OF_RANGE, "start does not match a slot")
+            invalid(ErrorCode.SLOT_OUT_OF_RANGE, "start does not match a slot")
         }
         val booking =
             Booking(
@@ -67,7 +71,7 @@ class CreateBookingHandlerImpl(
                 guestPhone = phone,
                 notes = notes,
             )
-        bookings.add(booking)
+        if (!bookings.addIfFree(booking)) invalid(ErrorCode.SLOT_TAKEN, "Slot is already taken")
         return booking
     }
 
