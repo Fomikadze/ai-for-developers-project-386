@@ -5,7 +5,7 @@ import {
   bookingsListUpcomingOptions,
   getOwnerOptions,
 } from '../../api/generated/@tanstack/react-query.gen';
-import { errorText } from '../../lib/errors';
+import { apiErrorCode, errorText } from '../../lib/errors';
 import { formatSlot } from '../../lib/format';
 
 export function UpcomingTab() {
@@ -13,12 +13,12 @@ export function UpcomingTab() {
   const owner = useQuery(getOwnerOptions());
   const list = useQuery(bookingsListUpcomingOptions());
 
-  const error = (list.error ?? owner.error) as { code?: unknown } | null;
+  const error = list.error ?? owner.error;
 
   if (error) {
     return (
       <Alert color="red" role="alert" mt="lg">
-        {errorText(i18n, error.code)}
+        {errorText(i18n, apiErrorCode(error))}
       </Alert>
     );
   }

@@ -4,7 +4,6 @@ import {
   Card,
   Container,
   Group,
-  Loader,
   SimpleGrid,
   Stack,
   Text,
@@ -17,14 +16,15 @@ import 'dayjs/locale/en';
 import 'dayjs/locale/ru';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import {
   getOwnerOptions,
   meetingTypesListOptions,
   meetingTypesListSlotsOptions,
 } from '../../api/generated/@tanstack/react-query.gen';
 import { SlotList } from '../../components/SlotList';
-import { errorText } from '../../lib/errors';
+import { MeetingTypeNotFound, PageLoader } from '../../components/PageState';
+import { apiErrorCode, errorText } from '../../lib/errors';
 import { bookingWindow, groupSlotsByDay } from '../../lib/slots';
 
 export function BookSlotPage() {
@@ -47,9 +47,12 @@ export function BookSlotPage() {
     [slots.data, tz],
   );
 
+  if ((types.data && !type) || apiErrorCode(slots.error) === 'MEETING_TYPE_NOT_FOUND') {
+    return <MeetingTypeNotFound />;
+  }
   const failure = owner.error ?? types.error ?? slots.error;
   if (failure) {
-    const code = (failure as { code?: unknown }).code;
+    const code = apiErrorCode(failure);
     return (
       <Container size="md" py={56}>
         <Alert color="red" role="alert">
@@ -58,24 +61,8 @@ export function BookSlotPage() {
       </Container>
     );
   }
-  if (types.data && !type) {
-    return (
-      <Container size="md" py={56}>
-        <Stack align="flex-start">
-          <Title order={2}>{t('slots.typeNotFound')}</Title>
-          <Button component={Link} to="/book">
-            {t('slots.toCatalog')}
-          </Button>
-        </Stack>
-      </Container>
-    );
-  }
   if (!type || !tz || !slots.data) {
-    return (
-      <Container size="md" py={56}>
-        <Loader />
-      </Container>
-    );
+    return <PageLoader />;
   }
 
   const { min, max } = bookingWindow(tz);
