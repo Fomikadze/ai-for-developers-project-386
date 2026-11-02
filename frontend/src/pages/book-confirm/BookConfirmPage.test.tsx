@@ -162,3 +162,55 @@ it('SLOT_TAKEN возвращает к выбору времени, обновл
   expect(await screen.findByLabelText(/^Имя/)).toHaveValue('Иван');
   expect(screen.getByLabelText(/^Email/)).toHaveValue('ivan@example.com');
 });
+
+describe('конфликт слота в полном сценарии', () => {
+  const slotA = { start, end: '2026-11-03T04:45:00Z' };
+  const slotB = { start: '2026-11-03T04:30:00Z', end: '2026-11-03T05:15:00Z' }; // 09:30
+  const conflict = (slots: () => unknown[]) => ({
+    ...base,
+    'GET /api/meeting-types/a1/slots': () => ({ body: slots() }),
+    'POST /api/bookings': { status: 409, body: { code: 'SLOT_TAKEN', message: 'x' } },
+  });
+
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-11-02T05:00:00Z') });
+  });
+  afterEach(() => vi.useRealTimers());
+
+  it('занятый слот пропадает после перезапроса, данные формы подставляются при выборе другого', async () => {
+    const user = userEvent.setup();
+    let taken = false;
+    const api = conflict(() => (taken ? [slotB] : [slotA, slotB]));
+    const { router } = await renderRoute('/book/a1', { api });
+
+    await user.click(await screen.findByRole('button', { name: /^3 ноября/ }));
+    await user.click(await screen.findByRole('button', { name: '09:00' }));
+    await user.click(screen.getByRole('button', { name: 'Продолжить' }));
+    await fill(user, { name: 'Иван', email: 'ivan@example.com', phone: '+77001234567' });
+    taken = true;
+    await user.click(screen.getByRole('button', { name: 'Записаться' }));
+
+    await waitFor(() => expect(router.state.location.pathname).toBe('/book/a1'));
+    await user.click(await screen.findByRole('button', { name: /^3 ноября/ }));
+    expect(await screen.findByRole('button', { name: '09:30' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '09:00' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '09:30' }));
+    await user.click(screen.getByRole('button', { name: 'Продолжить' }));
+    expect(await screen.findByLabelText(/^Имя/)).toHaveValue('Иван');
+    expect(screen.getByLabelText(/^Email/)).toHaveValue('ivan@example.com');
+    expect(screen.getByLabelText(/^Телефон/)).toHaveValue('+77001234567');
+  });
+
+  it('уведомление приходит на выбранном языке', async () => {
+    const user = userEvent.setup();
+    await renderRoute(path, { api: conflict(() => []), language: 'en' });
+    await user.type(await screen.findByLabelText(/^Name/), 'Ivan');
+    await user.type(screen.getByLabelText(/^Email/), 'ivan@example.com');
+    await user.type(screen.getByLabelText(/^Phone/), '+77001234567');
+    await user.click(screen.getByRole('button', { name: /^(Book|Confirm)/ }));
+    expect(
+      await screen.findByText('This time is already taken, pick another one'),
+    ).toBeInTheDocument();
+  });
+});
