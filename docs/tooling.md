@@ -5,10 +5,11 @@
 Версии инструментов (JDK, Node, pnpm, hk, pitchfork и инструменты проверок) и задачи проекта лежат в `mise.toml`. Это единственное место, где задаются версии: CI ставит их через `jdx/mise-action` и запускает те же задачи, что и локально.
 
 - `mise install` ставит инструменты, `mise tasks` показывает задачи.
-- `mise run check` — полная проверка, ровно то, что выполняет CI: `lint`, `lint:repo`, `lint:links`, `lint:commits`, `test`, `security`, `api:breaking`, затем `coverage:diff` и `smoke`. Нужны сеть и свободный порт 8080. Не входит `e2e`: он появится в `check` вместе с фронтендом.
+- `mise run check` — полная проверка, ровно то, что выполняет CI: `lint`, `lint:repo`, `lint:links`, `lint:commits`, `test`, `security`, `api:breaking`, затем `coverage:diff`, `smoke` и `e2e:run`. Нужны сеть и свободные порты 8080 и 5173.
 - `mise run local-check` — быстрая версия для работы без сети и серверов: `lint`, `lint:repo`, `test`, `security`, `api:breaking`, затем `coverage:diff`.
 - Задачи `lint:*` и `test:*` для `backend`, `frontend` и `typespec` пропускаются с сообщением, пока нет `gradlew` или `package.json`.
-- Основные задачи: `mise run lint`, `mise run test`, `mise run sdk`, `mise run backend:run`, `mise run frontend:dev`, `mise run e2e`, `mise run smoke`.
+- Основные задачи: `mise run lint`, `mise run test`, `mise run sdk`, `mise run backend:run`, `mise run frontend:dev`, `mise run e2e`, `mise run e2e:run`, `mise run smoke`.
+- `mise run e2e` только запускает Playwright и ждёт уже поднятые серверы (`mise daemons start`). `mise run e2e:run` сам поднимает daemons, ставит браузер Chromium, гоняет тесты и останавливает серверы; её вызывают `check` и CI. В `local-check` она не входит.
 
 ## Git-хуки (hk)
 

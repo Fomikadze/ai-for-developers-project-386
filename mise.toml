@@ -102,6 +102,10 @@ description = "Playwright e2e тесты"
 dir = "frontend"
 run = "pnpm exec playwright test"
 
+[tasks."e2e:run"]
+description = "E2E с запуском серверов: daemons mise, Playwright, остановка серверов (нужны порты 8080 и 5173)"
+run = "scripts/e2e.sh"
+
 [tasks."lint:workflows"]
 description = "actionlint: GitHub Actions workflow"
 run = "actionlint"
@@ -167,9 +171,10 @@ depends = ["lint", "lint:repo", "test", "security", "api:breaking"]
 run = [{ task = "coverage:diff" }]
 
 [tasks.check]
-description = "Полная проверка, как в CI: local-check плюс ссылки, сообщения коммитов и smoke-тест"
+description = "Полная проверка, как в CI: local-check плюс ссылки, сообщения коммитов, smoke-тест и e2e"
 depends = ["lint", "lint:repo", "lint:links", "lint:commits", "test", "security", "api:breaking"]
 run = [
   { task = "coverage:diff" },
   { task = "smoke" },
+  { task = "e2e:run" },
 ]
