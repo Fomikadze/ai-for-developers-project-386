@@ -44,7 +44,11 @@
   "admin": {
     "title": "Админка",
     "tabs": {
-      "meetingTypes": "Типы встреч"
+      "meetingTypes": "Типы встреч",
+      "upcoming": "Предстоящие встречи"
+    },
+    "upcoming": {
+      "empty": "Предстоящих встреч пока нет."
     },
     "meetingTypes": {
       "listTitle": "Ваши типы встреч",
