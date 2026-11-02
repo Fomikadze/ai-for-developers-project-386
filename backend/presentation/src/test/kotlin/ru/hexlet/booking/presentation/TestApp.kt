@@ -1,6 +1,7 @@
 package ru.hexlet.booking.presentation
 
 import io.ktor.server.application.Application
+import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import org.koin.core.module.Module
@@ -27,4 +28,4 @@ fun testBooking(
 fun Application.testModule(
     clock: Clock = TestClock(),
     vararg overrides: Module,
-) = configureApp(defaultModules() + clockModule(clock) + overrides)
+) = configureApp(defaultModules(ApplicationConfig("application.conf")) + clockModule(clock) + overrides)
