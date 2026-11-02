@@ -15,4 +15,5 @@ enum class ErrorCode {
 class ApiException(
     val code: ErrorCode,
     message: String,
-) : RuntimeException(message)
+    cause: Throwable? = null,
+) : RuntimeException(message, cause)
