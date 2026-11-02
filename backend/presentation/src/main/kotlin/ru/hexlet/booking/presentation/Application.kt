@@ -24,6 +24,8 @@ import ru.hexlet.booking.application.ListMeetingTypesHandler
 import ru.hexlet.booking.application.ListMeetingTypesHandlerImpl
 import ru.hexlet.booking.application.ListSlotsHandler
 import ru.hexlet.booking.application.ListSlotsHandlerImpl
+import ru.hexlet.booking.application.ListUpcomingBookingsHandler
+import ru.hexlet.booking.application.ListUpcomingBookingsHandlerImpl
 import ru.hexlet.booking.application.MeetingTypeRepository
 import ru.hexlet.booking.application.OwnerProvider
 import ru.hexlet.booking.domain.Owner
@@ -40,6 +42,7 @@ fun applicationModule(): Module =
         single<CreateMeetingTypeHandler> { CreateMeetingTypeHandlerImpl(get()) }
         single<ListSlotsHandler> { ListSlotsHandlerImpl(get(), get(), get()) }
         single<CreateBookingHandler> { CreateBookingHandlerImpl(get(), get(), get()) }
+        single<ListUpcomingBookingsHandler> { ListUpcomingBookingsHandlerImpl(get(), get()) }
     }
 
 /** Реализации портов: часы и хранилища в памяти. Новый вызов даёт свежие хранилища. */
@@ -84,11 +87,12 @@ fun Application.configureApp(modules: List<Module>) {
     val createMeetingType by inject<CreateMeetingTypeHandler>()
     val listSlots by inject<ListSlotsHandler>()
     val createBooking by inject<CreateBookingHandler>()
+    val listUpcomingBookings by inject<ListUpcomingBookingsHandler>()
     routing {
         healthRoutes()
         catalogRoutes(getOwner, listMeetingTypes, createMeetingType)
         slotRoutes(listSlots)
-        bookingRoutes(createBooking)
+        bookingRoutes(createBooking, listUpcomingBookings)
     }
 }
 
