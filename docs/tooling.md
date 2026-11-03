@@ -31,7 +31,7 @@ hk ставится через mise, конфигурация — `hk.pkl` в к
 | Инструмент | Задача mise | Что проверяет | Конфигурация |
 | --- | --- | --- | --- |
 | actionlint | `lint:workflows` | workflow GitHub Actions | — |
-| check-jsonschema | `lint:schemas` | workflow и `renovate.json` по официальным схемам | — |
+| check-jsonschema | `lint:schemas` | workflow, `renovate.json` и конфигурация release-please по официальным схемам | — |
 | hadolint | `lint:docker` | все `Dockerfile*` в репозитории | — |
 | rumdl | `lint:markdown` | Markdown | `.rumdl.toml` |
 | typos | `lint:typos` | опечатки в коде и документации (английский) | — |
@@ -41,6 +41,7 @@ hk ставится через mise, конфигурация — `hk.pkl` в к
 | OSV-Scanner | `security:deps` | известные уязвимости в зависимостях по lock-файлам | — |
 | oasdiff | `api:breaking` | ломающие изменения `typespec/openapi.yaml` относительно `origin/main`; новый код ошибки — предупреждение, а не ошибка | `scripts/api-breaking.sh`, уровни правил в `scripts/oasdiff-severity-levels.txt` |
 | diff-cover | `coverage:diff` | покрытие изменённых строк, порог 80% | `scripts/coverage-diff.sh` |
+| release-please | — | релизный PR, `CHANGELOG.md` и теги | `release-please-config.json`, `.release-please-manifest.json`, `.github/workflows/release-please.yml` |
 | Renovate | — | обновления зависимостей и версий в `mise.toml` через PR | `renovate.json` |
 
 Группы: `mise run lint:repo` (workflows, schemas, docker, markdown, typos), `mise run security` (секреты и зависимости).
@@ -66,6 +67,17 @@ hk ставится через mise, конфигурация — `hk.pkl` в к
 - `mise daemons stop` — остановить; `mise daemons restart` — перезапустить.
 - `mise daemons ls` / `mise daemons status` — состояние; `mise daemons logs backend` — вывод.
 - Агент запускает серверы только через daemons, а не фоновым `./gradlew run &` или `pnpm dev &`.
+
+## Релизы
+
+Релизы выпускает release-please (GitHub Action `googleapis/release-please-action`, workflow `.github/workflows/release-please.yml`).
+
+- После каждого пуша в `main` action по Conventional Commits с прошлого релиза поддерживает открытый **релизный PR** с заголовком `chore(main): release X.Y.Z`. В нём следующая версия, дописанный `CHANGELOG.md` и обновлённый `.release-please-manifest.json`.
+- Мёрж релизного PR ставит тег `vX.Y.Z` и создаёт GitHub Release с тем же текстом. Сборки и публикации артефактов после релиза пока нет: событие релиза станет точкой подключения Docker позже.
+- Конфигурация — `release-please-config.json` и `.release-please-manifest.json` в корне. Схему конфигурации проверяет `lint:schemas`. Версия одна на всё приложение (тип пакета `simple`, корень репозитория), версия API в `typespec/main.tsp` с ней не связана. Отсчёт идёт с `bootstrap-sha`, поэтому история до него в ченджлог не попадает; первый релиз — `0.1.0`.
+- Влияние коммитов на версию: `feat` повышает минорную, `fix`, `perf` и `revert` — патчевую версию. Ломающее изменение (`!` после типа или `BREAKING CHANGE:` в теле) до `1.0.0` тоже повышает минорную (`bump-minor-pre-major`). В ченджлог попадают секции «Возможности» (`feat`), «Исправления» (`fix`), «Производительность» (`perf`), «Откаты» (`revert`); остальные типы скрыты.
+- `CHANGELOG.md` исключён из `lint:markdown` (формат генератора).
+- Токен — встроенный `GITHUB_TOKEN` с правами `contents: write` и `pull-requests: write`. Ограничение: PR, созданный этим токеном, не запускает другие workflow, поэтому `check.yml` на релизном PR не стартует. Пока это приемлемо, релизный PR меняет только ченджлог и манифест. Если проверки понадобятся, нужен токен GitHub App или PAT в секретах репозитория — отдельное решение владельца.
 
 ## CI
 

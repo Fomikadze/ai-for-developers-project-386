@@ -114,10 +114,11 @@ description = "actionlint: GitHub Actions workflow"
 run = "actionlint"
 
 [tasks."lint:schemas"]
-description = "check-jsonschema: workflow и renovate.json по схемам"
+description = "check-jsonschema: workflow, renovate.json и конфигурация release-please по схемам"
 run = [
   "check-jsonschema --builtin-schema vendor.github-workflows .github/workflows/*.yml",
   "check-jsonschema --builtin-schema vendor.renovate renovate.json",
+  "check-jsonschema --schemafile https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json release-please-config.json",
 ]
 
 [tasks."lint:docker"]
