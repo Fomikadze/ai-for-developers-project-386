@@ -1,4 +1,8 @@
 import '@testing-library/jest-dom/vitest';
+import { configure } from '@testing-library/react';
+
+// Медленный раннер CI не успевает отрисовать Mantine за 1 с, которую Testing Library ждёт по умолчанию.
+configure({ asyncUtilTimeout: 5000 });
 
 // Mantine использует matchMedia и ResizeObserver, которых нет в jsdom.
 window.matchMedia ??= ((query: string) => ({

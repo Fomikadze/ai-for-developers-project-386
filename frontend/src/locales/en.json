@@ -1,6 +1,11 @@
 {
-  "app": { "name": "Calendar" },
-  "nav": { "book": "Book a call", "admin": "Admin" },
+  "app": {
+    "name": "Calendar"
+  },
+  "nav": {
+    "book": "Book a call",
+    "admin": "Admin"
+  },
   "home": {
     "badge": "Quick call booking",
     "description": "Book a meeting in a minute: pick a meeting type and a convenient time.",
@@ -18,5 +23,66 @@
     "description": "This page does not exist. The link may be outdated or the address may contain a typo.",
     "home": "Back to home"
   },
-  "errors": {}
+  "meetingType": {
+    "duration": "{{count}} min"
+  },
+  "catalog": {
+    "title": "Choose a meeting type",
+    "empty": "No meeting types available yet."
+  },
+  "slots": {
+    "none": "No available time",
+    "pickDate": "Pick a date",
+    "typeNotFound": "Meeting type not found",
+    "toCatalog": "Back to meeting types",
+    "back": "Back",
+    "continue": "Continue",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "dayLabel": "{{date}}, available slots: {{count}}"
+  },
+  "admin": {
+    "title": "Admin",
+    "tabs": {
+      "meetingTypes": "Meeting types",
+      "upcoming": "Upcoming meetings"
+    },
+    "upcoming": {
+      "empty": "No upcoming meetings yet."
+    },
+    "meetingTypes": {
+      "listTitle": "Your meeting types",
+      "empty": "No meeting types yet.",
+      "formTitle": "New meeting type",
+      "title": "Title",
+      "description": "Description",
+      "duration": "Duration, min",
+      "submit": "Create",
+      "errors": {
+        "title": "Enter a title up to 100 characters.",
+        "description": "Description: up to 1000 characters.",
+        "duration": "Duration: 15 to 540 minutes."
+      }
+    }
+  },
+  "errors": {
+    "VALIDATION_ERROR": "Please check the entered data.",
+    "INVALID_NAME": "Enter a name: letters, spaces and hyphens only, up to 100 characters.",
+    "INVALID_EMAIL": "Enter a valid email.",
+    "INVALID_PHONE": "Enter a phone number in international format, e.g. +77001234567.",
+    "SLOT_OUT_OF_RANGE": "This time is not available for booking. Pick another one.",
+    "MEETING_TYPE_NOT_FOUND": "Meeting type not found.",
+    "SLOT_TAKEN": "This time is already taken, pick another one",
+    "UNKNOWN": "Something went wrong. Please try again."
+  },
+  "confirm": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "notes": "Notes (optional)",
+    "submit": "Book"
+  },
+  "success": {
+    "title": "Booking confirmed"
+  }
 }
