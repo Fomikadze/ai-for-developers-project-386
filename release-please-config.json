@@ -1,22 +1,27 @@
 {
-  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-  "bootstrap-sha": "79cedac1a6dceb3b4cc95823b0ccd2e38d065b97",
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/v17.11.2/schemas/config.json",
+  "bootstrap-sha": "e8d5efe353f9d090650359c92aa331b006acd267",
   "release-type": "simple",
   "bump-minor-pre-major": true,
   "include-component-in-tag": false,
   "changelog-path": "CHANGELOG.md",
   "changelog-sections": [
-    { "type": "feat", "section": "Возможности" },
-    { "type": "fix", "section": "Исправления" },
-    { "type": "perf", "section": "Производительность" },
-    { "type": "revert", "section": "Откаты" },
-    { "type": "docs", "section": "Документация", "hidden": true },
-    { "type": "style", "section": "Стиль", "hidden": true },
-    { "type": "refactor", "section": "Рефакторинг", "hidden": true },
-    { "type": "test", "section": "Тесты", "hidden": true },
-    { "type": "build", "section": "Сборка", "hidden": true },
-    { "type": "ci", "section": "CI", "hidden": true },
-    { "type": "chore", "section": "Прочее", "hidden": true }
+    {
+      "type": "feat",
+      "section": "Возможности"
+    },
+    {
+      "type": "fix",
+      "section": "Исправления"
+    },
+    {
+      "type": "perf",
+      "section": "Производительность"
+    },
+    {
+      "type": "revert",
+      "section": "Откаты"
+    }
   ],
   "packages": {
     ".": {}
