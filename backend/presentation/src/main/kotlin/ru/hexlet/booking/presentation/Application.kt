@@ -4,6 +4,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.config.ApplicationConfig
+import io.ktor.server.http.content.singlePageApplication
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.routing.routing
 import kotlinx.serialization.json.Json
@@ -93,6 +94,10 @@ fun Application.configureApp(modules: List<Module>) {
         catalogRoutes(getOwner, listMeetingTypes, createMeetingType)
         slotRoutes(listSlots)
         bookingRoutes(createBooking, listUpcomingBookings)
+        // Собранный фронтенд: в образе задан STATIC_DIR, в разработке и тестах раздачи нет.
+        environment.config.propertyOrNull("static.dir")?.getString()?.let { dir ->
+            singlePageApplication { filesPath = dir }
+        }
     }
 }
 
