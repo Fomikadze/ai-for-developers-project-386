@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/Fomikadze/ai-for-developers-project-386/compare/v0.2.0...v0.2.1) (2026-11-06)
+
+
+### Исправления
+
+* **ci:** typos пропускает CHANGELOG.md ([7ec6b1c](https://github.com/Fomikadze/ai-for-developers-project-386/commit/7ec6b1c1dc222772a38e711a85b4d402d9ec3230))
+* **ci:** typos пропускает CHANGELOG.md ([617bcbd](https://github.com/Fomikadze/ai-for-developers-project-386/commit/617bcbdba28d0f9119456d2d88519f7f1908fd08))
+
 ## [0.2.0](https://github.com/Fomikadze/ai-for-developers-project-386/compare/v0.1.0...v0.2.0) (2026-11-06)
 
 
