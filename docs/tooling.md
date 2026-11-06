@@ -89,7 +89,13 @@ hk ставится через mise, конфигурация — `hk.pkl` в к
 
 ## Docker
 
-Dockerfile и docker-compose ещё не созданы. Описание запуска появится здесь вместе с ними.
+Корневой `Dockerfile` собирает один образ в три стадии: фронтенд (pnpm, SDK генерируется из `typespec/openapi.yaml`), бэкенд (`./gradlew :presentation:installDist`) и рантайм на `eclipse-temurin:21-jre`. Бэкенд отдаёт API и собранный фронтенд из каталога `STATIC_DIR` (в образе `/app/static`, любой неизвестный путь возвращает `index.html`). Без `STATIC_DIR` статика не раздаётся, поэтому разработка и тесты не меняются. Процесс работает от пользователя `10001`, порт — `8080` (переменная `PORT`).
+
+```bash
+docker compose up --build   # приложение на http://localhost:8080
+```
+
+Образ собирают проверка Хекслета (`hexlet-check`) и `docker compose`. Dockerfile проверяет `lint:docker` (hadolint).
 
 ## Smoke-тест
 

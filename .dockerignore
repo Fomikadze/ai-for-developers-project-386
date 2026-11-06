@@ -1,0 +1,11 @@
+.git
+.claude
+**/node_modules
+**/build
+**/.gradle
+**/.kotlin
+**/dist
+**/coverage
+**/test-results
+**/playwright-report
+frontend/src/api/generated
