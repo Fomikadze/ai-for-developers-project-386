@@ -1,5 +1,6 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { notifications } from '@mantine/notifications';
 import { clearDraft } from '../../lib/draft';
 import { renderRoute } from '../../test/renderRoute';
 
@@ -26,6 +27,7 @@ const base = {
 };
 
 beforeEach(() => clearDraft());
+afterEach(() => notifications.clean());
 
 async function fill(user: ReturnType<typeof userEvent.setup>, values: Record<string, string>) {
   const labels: Record<string, RegExp> = {
@@ -160,7 +162,7 @@ it('SLOT_TAKEN возвращает к выбору времени, обновл
 
   await router.navigate(path);
   expect(await screen.findByLabelText(/^Имя/)).toHaveValue('Иван');
-  expect(screen.getByLabelText(/^Email/)).toHaveValue('ivan@example.com');
+  expect(await screen.findByLabelText(/^Email/)).toHaveValue('ivan@example.com');
 });
 
 describe('конфликт слота в полном сценарии', () => {
@@ -198,16 +200,16 @@ describe('конфликт слота в полном сценарии', () => {
     await user.click(screen.getByRole('button', { name: '09:30' }));
     await user.click(screen.getByRole('button', { name: 'Продолжить' }));
     expect(await screen.findByLabelText(/^Имя/)).toHaveValue('Иван');
-    expect(screen.getByLabelText(/^Email/)).toHaveValue('ivan@example.com');
-    expect(screen.getByLabelText(/^Телефон/)).toHaveValue('+77001234567');
+    expect(await screen.findByLabelText(/^Email/)).toHaveValue('ivan@example.com');
+    expect(await screen.findByLabelText(/^Телефон/)).toHaveValue('+77001234567');
   });
 
   it('уведомление приходит на выбранном языке', async () => {
     const user = userEvent.setup();
     await renderRoute(path, { api: conflict(() => []), language: 'en' });
     await user.type(await screen.findByLabelText(/^Name/), 'Ivan');
-    await user.type(screen.getByLabelText(/^Email/), 'ivan@example.com');
-    await user.type(screen.getByLabelText(/^Phone/), '+77001234567');
+    await user.type(await screen.findByLabelText(/^Email/), 'ivan@example.com');
+    await user.type(await screen.findByLabelText(/^Phone/), '+77001234567');
     await user.click(screen.getByRole('button', { name: /^(Book|Confirm)/ }));
     expect(
       await screen.findByText('This time is already taken, pick another one'),
