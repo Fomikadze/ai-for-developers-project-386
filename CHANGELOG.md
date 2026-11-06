@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.0](https://github.com/Fomikadze/ai-for-developers-project-386/compare/v0.1.0...v0.2.0) (2026-11-06)
+
+
+### Возможности
+
+* **docker:** Dockerfile и docker-compose ([f4929fc](https://github.com/Fomikadze/ai-for-developers-project-386/commit/f4929fc2e157aca0edfcec3da6e382f21d6f7022))
+* **docker:** Dockerfile и docker-compose, бэкенд отдаёт собранный фронтенд ([9da21a8](https://github.com/Fomikadze/ai-for-developers-project-386/commit/9da21a8daabcdb19e5c8d42a82a8b8bde80e7a9d))
+
+
+### Исправления
+
+* **ci:** lychee пропускает ссылки compare из ченджлога ([8563ed8](https://github.com/Fomikadze/ai-for-developers-project-386/commit/8563ed8f729af6efe1b130db2069c410d66f1296))
+* **ci:** lychee пропускает ссылки compare из ченджлога релизного PR ([ba26a11](https://github.com/Fomikadze/ai-for-developers-project-386/commit/ba26a114bbf101d730a5a312215f34b6b0db1d25))
+
 ## 0.1.0 (2026-11-03)
 
 
