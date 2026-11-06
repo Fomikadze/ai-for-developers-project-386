@@ -1,0 +1,3 @@
+# CHANGELOG.md генерирует release-please: хеши коммитов в ссылках дают ложные срабатывания.
+[files]
+extend-exclude = ["CHANGELOG.md"]
