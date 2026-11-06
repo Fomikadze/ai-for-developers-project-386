@@ -1,0 +1,3 @@
+# Ссылки `compare/vA...vB` в CHANGELOG.md release-please пишет до создания тега vB,
+# поэтому в релизном PR они отдают 404 (тег появится после мёржа).
+exclude = ['^https://github\.com/[^/]+/[^/]+/compare/']
