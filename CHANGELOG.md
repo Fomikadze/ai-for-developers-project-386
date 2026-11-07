@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/Fomikadze/ai-for-developers-project-386/compare/v0.2.1...v0.3.0) (2026-11-07)
+
+
+### Возможности
+
+* **deploy:** blueprint Render, шаблон MCP и раздел «Деплой» в README ([de0d6d5](https://github.com/Fomikadze/ai-for-developers-project-386/commit/de0d6d5fde2ab45345cbf2cf8286dbeff9656fa3)), closes [#62](https://github.com/Fomikadze/ai-for-developers-project-386/issues/62)
+
 ## [0.2.1](https://github.com/Fomikadze/ai-for-developers-project-386/compare/v0.2.0...v0.2.1) (2026-11-06)
 
 
