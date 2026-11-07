@@ -20,7 +20,7 @@ data class Booking(
     val guestPhone: String,
     val notes: String?,
 ) {
-    /** Занятое время брони; считается один раз при создании. */
+    /** Занятый интервал времени. Производное от [start] и [end], всегда с ними согласовано. */
     val range: TimeRange = TimeRange(start, end)
 }
 
