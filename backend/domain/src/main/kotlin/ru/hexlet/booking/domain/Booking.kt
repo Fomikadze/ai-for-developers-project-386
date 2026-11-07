@@ -20,7 +20,9 @@ data class Booking(
     val guestPhone: String,
     val notes: String?,
 ) {
-    fun overlaps(slot: Slot): Boolean = start < slot.end && slot.start < end
+    val interval: Slot get() = Slot(start, end)
+
+    fun overlaps(slot: Slot): Boolean = interval.overlaps(slot)
 }
 
 /** Правила полей гостя. Паттерны и длины совпадают с `typespec/main.tsp`, значения проверяются как есть. */

@@ -35,7 +35,10 @@ object Schedule {
 data class Slot(
     val start: Instant,
     val end: Instant,
-)
+) {
+    /** Единственное правило пересечения: интервалы, которые только соприкасаются концами, не пересекаются. */
+    fun overlaps(other: Slot): Boolean = start < other.end && other.start < end
+}
 
 object SlotGenerator {
     /** Все слоты окна записи (с завтра на [Schedule.WINDOW_DAYS] дней) по возрастанию `start`, без учёта занятости. */
