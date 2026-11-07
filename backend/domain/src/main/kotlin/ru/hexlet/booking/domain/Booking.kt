@@ -20,7 +20,8 @@ data class Booking(
     val guestPhone: String,
     val notes: String?,
 ) {
-    fun overlaps(slot: Slot): Boolean = start < slot.end && slot.start < end
+    /** Занятый интервал времени. Производное от [start] и [end], всегда с ними согласовано. */
+    val range: TimeRange = TimeRange(start, end)
 }
 
 /** Правила полей гостя. Паттерны и длины совпадают с `typespec/main.tsp`, значения проверяются как есть. */

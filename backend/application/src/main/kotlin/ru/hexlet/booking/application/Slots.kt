@@ -21,6 +21,6 @@ class ListSlotsHandlerImpl(
         val taken = bookings.all()
         return SlotGenerator
             .generate(Duration.ofMinutes(meetingType.durationMinutes.toLong()), clock.now())
-            .filter { slot -> taken.none { it.overlaps(slot) } }
+            .filter { slot -> taken.none { it.range.overlaps(slot.range) } }
     }
 }

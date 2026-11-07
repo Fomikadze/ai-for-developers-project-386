@@ -31,11 +31,22 @@ object Schedule {
     const val WINDOW_DAYS = 14L
 }
 
-/** Интервал `[start, end)`. */
-data class Slot(
+/** Интервал времени `[start, end)`, не привязанный к слоту или брони. */
+data class TimeRange(
     val start: Instant,
     val end: Instant,
-)
+) {
+    /** Единственное правило пересечения: интервалы, которые только соприкасаются концами, не пересекаются. */
+    fun overlaps(other: TimeRange): Boolean = start < other.end && other.start < end
+}
+
+/** Свободное время, на которое гость может записаться. */
+data class Slot(
+    val range: TimeRange,
+) {
+    val start: Instant get() = range.start
+    val end: Instant get() = range.end
+}
 
 object SlotGenerator {
     /** Все слоты окна записи (с завтра на [Schedule.WINDOW_DAYS] дней) по возрастанию `start`, без учёта занятости. */
@@ -58,7 +69,7 @@ object SlotGenerator {
         val slots = mutableListOf<Slot>()
         var start = day.atTime(Schedule.DAY_START).atZone(Schedule.ZONE).toInstant()
         while (!start.plus(duration).isAfter(dayEnd)) {
-            slots.add(Slot(start, start.plus(duration)))
+            slots.add(Slot(TimeRange(start, start.plus(duration))))
             start = start.plus(Schedule.STEP)
         }
         return slots

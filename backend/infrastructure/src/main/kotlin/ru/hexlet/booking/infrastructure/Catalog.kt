@@ -29,7 +29,7 @@ class InMemoryBookingRepository : BookingRepository {
 
     override suspend fun addIfFree(booking: Booking): Boolean =
         mutex.withLock {
-            val free = items.none { it.start < booking.end && booking.start < it.end }
+            val free = items.none { it.range.overlaps(booking.range) }
             if (free) items.add(booking)
             free
         }
