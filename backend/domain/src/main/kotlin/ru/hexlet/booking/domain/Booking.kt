@@ -20,9 +20,8 @@ data class Booking(
     val guestPhone: String,
     val notes: String?,
 ) {
-    val interval: Slot get() = Slot(start, end)
-
-    fun overlaps(slot: Slot): Boolean = interval.overlaps(slot)
+    /** Занятое время брони; считается один раз при создании. */
+    val range: TimeRange = TimeRange(start, end)
 }
 
 /** Правила полей гостя. Паттерны и длины совпадают с `typespec/main.tsp`, значения проверяются как есть. */
