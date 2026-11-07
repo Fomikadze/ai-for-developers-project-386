@@ -60,6 +60,8 @@ mise run hooks:install   # git-хуки hk
 
 ## Деплой
 
+Публичная версия: <https://call-booking-hznk.onrender.com>
+
 Приложение разворачивается на [Render](https://render.com/) одним Docker-сервисом: бэкенд на Ktor отдаёт и API, и собранный фронтенд.
 
 > [!WARNING]
