@@ -5,7 +5,7 @@
 Версии инструментов (JDK, Node, pnpm, hk, pitchfork и инструменты проверок) и задачи проекта лежат в `mise.toml`. Это единственное место, где задаются версии: CI ставит их через `jdx/mise-action` и запускает те же задачи, что и локально.
 
 - `mise install` ставит инструменты, `mise tasks` показывает задачи.
-- `mise run check` — полная проверка, ровно то, что выполняет CI: `lint`, `lint:repo`, `lint:links`, `lint:commits`, `test`, `security`, `api:breaking`, затем `coverage:diff`, `smoke` и `e2e:run`. Нужны сеть и свободные порты 8080 и 5173.
+- `mise run check` — полная проверка, ровно то, что выполняет CI: `lint`, `lint:repo`, `lint:links`, `lint:commits`, `contract:check`, `test`, `security`, `api:breaking`, затем `coverage:diff`, `smoke` и `e2e:run`. Нужны сеть и свободные порты 8080 и 5173.
 - `mise run local-check` — быстрая версия для работы без сети и серверов: `lint`, `lint:repo`, `test`, `security`, `api:breaking`, затем `coverage:diff`.
 - Задачи `lint:*` и `test:*` для `backend`, `frontend` и `typespec` пропускаются с сообщением, пока нет `gradlew` или `package.json`.
 - Основные задачи: `mise run lint`, `mise run test`, `mise run sdk`, `mise run backend:run`, `mise run frontend:dev`, `mise run e2e`, `mise run e2e:run`, `mise run smoke`.
@@ -39,6 +39,7 @@ hk ставится через mise, конфигурация — `hk.pkl` в к
 | commitlint | `lint:commits`, хук `commit-msg` | сообщения коммитов | `commitlint.config.mjs` |
 | betterleaks | `security:secrets`, `security:secrets:staged` | секреты в истории git и в проиндексированных изменениях | — |
 | OSV-Scanner | `security:deps` | известные уязвимости в зависимостях по lock-файлам | — |
+| tsp compile + git diff | `contract:check` | закоммиченный `typespec/openapi.yaml` совпадает с результатом генерации из `typespec/main.tsp`; сравнивает с проиндексированным файлом, поэтому падает, если `openapi.yaml` правили руками или забыли перегенерировать и добавить в коммит | — |
 | oasdiff | `api:breaking` | ломающие изменения `typespec/openapi.yaml` относительно `origin/main`; новый код ошибки — предупреждение, а не ошибка | `scripts/api-breaking.sh`, уровни правил в `scripts/oasdiff-severity-levels.txt` |
 | diff-cover | `coverage:diff` | покрытие изменённых строк, порог 80% | `scripts/coverage-diff.sh` |
 | release-please | — | релизный PR, `CHANGELOG.md` и теги | `release-please-config.json`, `.release-please-manifest.json`, `.github/workflows/release-please.yml` |

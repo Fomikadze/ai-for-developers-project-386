@@ -1,0 +1,12 @@
+# Blueprint Render: один Docker-сервис отдаёт API и собранный фронтенд.
+# Подключение: Render Dashboard → New → Blueprint → этот репозиторий (см. README, раздел «Деплой»).
+services:
+  - type: web
+    name: call-booking
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: "8080"
