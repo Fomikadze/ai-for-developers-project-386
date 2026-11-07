@@ -48,6 +48,13 @@ run = [
 description = "Скомпилировать TypeSpec в openapi.yaml"
 run = "pnpm --dir typespec exec tsp compile ."
 
+[tasks."contract:check"]
+description = "openapi.yaml совпадает с результатом генерации из main.tsp (git diff --exit-code)"
+run = [
+  "pnpm --dir typespec exec tsp compile .",
+  "git diff --exit-code -- typespec/openapi.yaml",
+]
+
 [tasks.sdk]
 description = "Сгенерировать клиентский SDK из openapi.yaml"
 depends = ["contract"]
@@ -176,7 +183,7 @@ run = [{ task = "coverage:diff" }]
 
 [tasks.check]
 description = "Полная проверка, как в CI: local-check плюс ссылки, сообщения коммитов, smoke-тест и e2e"
-depends = ["lint", "lint:repo", "lint:links", "lint:commits", "test", "security", "api:breaking"]
+depends = ["lint", "lint:repo", "lint:links", "lint:commits", "contract:check", "test", "security", "api:breaking"]
 run = [
   { task = "coverage:diff" },
   { task = "smoke" },
